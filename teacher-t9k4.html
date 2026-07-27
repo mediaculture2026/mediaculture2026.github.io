@@ -360,7 +360,7 @@ function parseRoster(text){
   if (!rows.length) return null;
   if (rows[0][0] && rows[0][0].indexOf('年度') !== -1){
     return rows.slice(2).filter(function(r){ return r[3]; }).map(function(r){
-      return { name: r[3].trim(), kana: (r[4]||'').trim(), grade: (r[6]||'').trim(), dept: (r[8]||'').trim(), sid: (r[9]||'').trim() };
+      return { name: r[3].trim(), kana: (r[4]||'').trim(), grade: (r[6]||'').trim(), dept: (r[8]||'').trim(), sid: (r[2]||'').trim() };
     });
   }
   const start = (norm(rows[0][0]).indexOf('氏名') !== -1) ? 1 : 0;
