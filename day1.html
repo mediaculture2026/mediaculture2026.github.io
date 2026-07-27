@@ -87,6 +87,24 @@
     color:var(--sub);
   }
   .navrow{display:flex;justify-content:space-between;font-size:14px;margin-top:40px;}
+  .toi{
+    margin:48px 0;
+    padding:40px 24px;
+    background:#fff;
+    border:1px solid var(--line);
+    text-align:center;
+    font-size:22px;
+    line-height:1.8;
+    letter-spacing:.06em;
+  }
+  blockquote{
+    margin:0 0 20px;
+    padding:14px 20px;
+    background:#fff;
+    border-left:3px solid var(--line);
+    font-size:15px;
+  }
+  .src{font-size:13px;color:var(--sub);margin:-8px 0 24px;padding-left:20px;}
 </style>
 </head>
 <body>
@@ -122,6 +140,8 @@
 <p>作成時間が終わったら、発表の前に文章を提出してください。発表は、この提出した文章で行います。提出後の書き直しはできません。</p>
 <p><a class="btn" href="https://forms.gle/xbAyU2anWi7MS6pi7" target="_blank" rel="noopener">提出フォーム①</a></p>
 
+<div id="tsuzuki"></div>
+
 <div class="navrow">
   <span></span>
   <span>第2日(準備中)</span>
@@ -130,6 +150,47 @@
 <footer>
   © 2026 Hiroki Kehara|メディア文化ゼミナール
 </footer>
+
+<script>
+(function(){
+  var TOPIC = 'mczemi26-reveal-k4x9';
+  var SRC = './day1-tsuzuki-k4x9.html';
+  var revealed = false;
+
+  function renumber(){
+    var nums = document.querySelectorAll('h2 .num');
+    for (var i = 0; i < nums.length; i++){ nums[i].textContent = String(i + 1); }
+  }
+
+  function reveal(persist){
+    if (revealed) return;
+    revealed = true;
+    fetch(SRC).then(function(r){ return r.text(); }).then(function(html){
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var wrap = doc.querySelector('.wrap');
+      if (!wrap) return;
+      var hd = wrap.querySelector('header'); if (hd) hd.remove();
+      var ft = wrap.querySelector('footer'); if (ft) ft.remove();
+      document.getElementById('tsuzuki').innerHTML = wrap.innerHTML;
+      renumber();
+      if (persist) { try { localStorage.setItem('mc_d1_revealed', '1'); } catch(e){} }
+    }).catch(function(){ revealed = false; });
+  }
+
+  if (location.search.indexOf('full=1') !== -1) { reveal(false); }
+  try { if (localStorage.getItem('mc_d1_revealed') === '1') { reveal(true); } } catch(e){}
+
+  try {
+    var es = new EventSource('https://ntfy.sh/' + TOPIC + '/sse?since=all');
+    es.onmessage = function(ev){
+      try {
+        var d = JSON.parse(ev.data);
+        if (d.event === 'message' && String(d.message || '').indexOf('reveal') !== -1) { reveal(true); }
+      } catch(e){}
+    };
+  } catch(e){}
+})();
+</script>
 
 </div>
 </body>
