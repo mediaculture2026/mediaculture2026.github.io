@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>スライド|メディア論の視座</title>
+<style>
+  :root{
+    --ink:#22201d;
+    --paper:#faf8f4;
+    --accent:#b8431a;
+    --line:#d9d2c7;
+    --sub:#6f6a62;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    overflow:hidden;
+  }
+  .slide{
+    display:none;
+    height:100vh;
+    width:100vw;
+    padding:7vh 9vw;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .slide.on{display:flex;}
+  .kicker{
+    font-size:2.2vh;
+    letter-spacing:.25em;
+    color:var(--accent);
+    margin-bottom:2.5vh;
+  }
+  h1{
+    font-size:7.5vh;
+    margin:0 0 3vh;
+    letter-spacing:.04em;
+    line-height:1.35;
+  }
+  h2{
+    font-size:5.5vh;
+    margin:0 0 4vh;
+    letter-spacing:.04em;
+    line-height:1.4;
+    border-bottom:2px solid var(--line);
+    padding-bottom:2vh;
+  }
+  p, li{
+    font-size:3.4vh;
+    line-height:1.75;
+    margin:0 0 2.2vh;
+  }
+  ul{margin:0;padding-left:1.2em;}
+  li{margin-bottom:2.4vh;}
+  .big{
+    font-size:5vh;
+    line-height:1.7;
+  }
+  .cite{
+    font-size:2.4vh;
+    color:var(--sub);
+    margin-top:3vh;
+  }
+  .q{
+    font-size:5.2vh;
+    line-height:1.6;
+    margin-bottom:4vh;
+  }
+  .q .qmark{color:var(--accent);font-weight:bold;margin-right:.4em;}
+  .a{
+    background:#fff;
+    border-left:6px solid var(--accent);
+    padding:3vh 3.5vh;
+    font-size:3.6vh;
+    line-height:1.7;
+  }
+  .frag{visibility:hidden;}
+  .frag.show{visibility:visible;}
+  .accent{color:var(--accent);}
+  .center{text-align:center;}
+  .lede{color:var(--sub);font-size:2.8vh;}
+  #pager{
+    position:fixed;
+    bottom:2.5vh;
+    right:3vw;
+    font-size:2vh;
+    color:var(--sub);
+    font-variant-numeric:tabular-nums;
+  }
+  .want{
+    font-size:4.2vh;
+    line-height:2.1;
+    margin:0;
+    list-style:none;
+    padding:0;
+  }
+  .want li{margin-bottom:1vh;}
+  .want li::before{content:"─ ";color:var(--accent);}
+</style>
+</head>
+<body>
+
+<section class="slide center">
+  <div class="kicker">メディア文化ゼミナール 2026</div>
+  <h1>メディア論の視座</h1>
+  <p class="lede">この4日間を貫く、ものの見方</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">キーワード 1</div>
+  <h2>コミュニケーション【communication】</h2>
+  <ul>
+    <li>もともとは、<strong>人と人が意思を疎通する営み</strong>のこと</li>
+    <li>情報を伝達する活動としてだけ捉えられがちだが、<strong>感情や思想を共有する活動</strong>でもある。両者がより合わさるようにして成り立つ</li>
+    <li>近所づきあい、恋愛、学習、交渉、説得——私たちは場面に応じて<strong>多様なメディアを使い分けて</strong>暮らしている</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="kicker">キーワード 1(つづき)</div>
+  <h2>コミュニケーション【communication】</h2>
+  <ul>
+    <li>会話・対話は「言語」というメディアを介したコミュニケーション。<strong>身振り、表情、化粧、服装</strong>など非言語的なコミュニケーションの意義も大きい</li>
+    <li>人間のコミュニケーションは、より広い<strong>生物のコミュニケーション</strong>という基盤の上に成り立つ</li>
+    <li>人間と人工物(AI・ロボット)、人工物と人工物のコミュニケーションが一般化し、<strong>可能性と問題が同時に生じている</strong></li>
+  </ul>
+  <p class="cite">(水越, 2018)</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">キーワード 2</div>
+  <h2>メディア【media】</h2>
+  <ul>
+    <li>コミュニケーションの<strong>「媒(なかだち)」</strong>となるモノ・空間または構造を指す、多層的な概念</li>
+    <li>テレビ、ラジオ、新聞、雑誌、スマートフォン……これらを"メディア"と呼ぶのは、<strong>物理的側面に光を当てた呼び方に過ぎない</strong></li>
+    <li>実際は、伝達されるコンテンツ、それを支える<strong>技術・産業・国家制度・社会システム</strong>など、より重層的な構造を含み持つ</li>
+  </ul>
+  <p class="cite">(村田, 2014)</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">キーワード 2(つづき)</div>
+  <h2>メディアは、無色透明な手段ではない</h2>
+  <ul>
+    <li><strong>情報技術と社会の絶え間ない交渉</strong>のなかで、歴史的に形成されるもの</li>
+    <li>送り手と受け手とが情報を巡って繰り広げる<strong>多元的な駆け引き</strong>が、メディア文化を形成する</li>
+  </ul>
+  <p class="cite">(水越, 2011)</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">社会の欲望</div>
+  <ul class="want">
+    <li>動く絵が見たい</li>
+    <li>自分の声をとどめておきたい</li>
+    <li>遠く離れた土地にも音楽を届けたい</li>
+    <li>たくさんの人々に効率よくメッセージを送りたい</li>
+  </ul>
+  <p class="frag" style="margin-top:4vh">これら<strong>社会の欲望</strong>が、産業革命がもたらした科学技術との<strong>交渉を繰り返す中で徐々に形を与えられてきた</strong></p>
+  <p class="cite frag">(村田, 2014)</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">パースペクティブとしてのメディア論 1</div>
+  <p class="q"><span class="qmark">Q.</span>スマートフォンは"メディア"といえるか?</p>
+  <div class="a frag">メッセージのやり取りのためにアプリを搭載しているから、<strong>メディアである</strong></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">パースペクティブとしてのメディア論 2</div>
+  <p class="q"><span class="qmark">Q.</span>衣類は"メディア"といえるか?</p>
+  <div class="a frag">着る人のライフスタイル、その日の気分、アイデンティティを他者に向けて伝えることにも使えるから、<strong>メディアである</strong></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">パースペクティブとしてのメディア論 3</div>
+  <p class="q"><span class="qmark">Q.</span>ミュージアム(博物館や美術館)は"メディア"といえるか?</p>
+  <div class="a frag">近代社会の欲望が形を与えたコミュニケーションの「媒」。大量のものを一箇所の空間にあつめ、順序立てて配置し、その空間配置を通じて物語やメッセージを構成して発信する<strong>空間メディア</strong>である<span class="cite"><br>(村田, 2014)</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">パースペクティブとしてのメディア論 4</div>
+  <p class="q"><span class="qmark">Q.</span>プラモデルは"メディア"といえるか?</p>
+  <div class="a frag">プラモデルを作るとき、プラスチックという「モノ」と向き合いながら、同時にそのモノを通して<strong>何か別の存在に思いを馳せて</strong>もいる。そのとき、プラモデルは単なるモノではなく、ある種の<strong>「メディア」になっている</strong><span class="cite"><br>(松井, 2017)</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">パースペクティブとしてのメディア論</div>
+  <p class="big">あるものごとを<span class="accent">メディアとして捉える</span>際の、<br><strong>ものの見方を重視する</strong>こと。</p>
+  <p class="lede" style="margin-top:4vh">これを「パースペクティブとしてのメディア論」という</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">まとめ</div>
+  <p class="big">ものごとをメディア論的に考察することは、</p>
+  <p class="big frag">1 そこに成立する<span class="accent">コミュニケーションの構図</span>を解き明かすこと</p>
+  <p class="big frag">2 それをメディアたらしめた<span class="accent">社会の動向や思想</span>を可視化すること</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">参考文献</div>
+  <ul>
+    <li>『メディア論』水越伸, 飯田豊, 劉雪雁(2018, NHK出版)</li>
+    <li>『思想としてのミュージアム』村田麻里子(2014, 人文書院)</li>
+    <li>『模型のメディア論』松井広志(2017, 青弓社)</li>
+  </ul>
+</section>
+
+<div id="pager"></div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0;
+  function render(){
+    slides.forEach(function(s, k){ s.classList.toggle('on', k === i); });
+    document.getElementById('pager').textContent = (i + 1) + ' / ' + slides.length;
+  }
+  function frags(){ return Array.prototype.slice.call(slides[i].querySelectorAll('.frag')); }
+  function next(){
+    var hidden = frags().filter(function(f){ return !f.classList.contains('show'); });
+    if (hidden.length){ hidden[0].classList.add('show'); return; }
+    if (i < slides.length - 1){ i++; render(); }
+  }
+  function prev(){
+    if (i > 0){ i--; render(); frags().forEach(function(f){ f.classList.add('show'); }); }
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter'){ e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); prev(); }
+  });
+  document.addEventListener('click', function(e){
+    if (e.clientX < window.innerWidth * 0.15){ prev(); } else { next(); }
+  });
+  render();
+})();
+</script>
+
+</body>
+</html>
