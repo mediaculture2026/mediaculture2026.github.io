@@ -23,7 +23,7 @@
     font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
     line-height:1.7;
   }
-  .wrap{max-width:900px;margin:0 auto;padding:24px 20px 60px;}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px;}
   .head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;}
   .head h1{font-size:16px;margin:0;letter-spacing:.1em;color:var(--sub);font-weight:normal;}
   #clock{font-size:20px;font-variant-numeric:tabular-nums;color:var(--ink);}
@@ -64,6 +64,14 @@
     cursor:pointer;
   }
   button:hover{border-color:var(--sub);}
+  select,input[type="file"]{
+    background:var(--panel);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:14px;
+  }
   #revealBtn{
     background:var(--accent);
     border-color:var(--accent);
@@ -77,16 +85,37 @@
   #revealStatus.ok{color:var(--ok);}
   .offset{font-size:13px;color:var(--sub);}
   table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;}
-  td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  td,th{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;}
   td.t{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--sub);width:110px;}
   tr.past{opacity:.38;}
   tr.cur{background:var(--panel);}
   tr.cur td.t,tr.cur td.l{color:var(--accent);font-weight:bold;}
-  .links{margin-top:30px;font-size:13px;color:var(--sub);line-height:2;}
+  .links{margin-top:14px;font-size:13px;color:var(--sub);line-height:2;}
   .links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);margin-right:14px;}
   .links a:hover{border-color:var(--accent);}
   h2{font-size:13px;color:var(--sub);letter-spacing:.15em;font-weight:normal;margin:34px 0 4px;}
   .warnnote{font-size:12px;color:var(--sub);margin-top:16px;}
+  /* ---- dashboard ---- */
+  .dash{background:var(--panel);border:1px solid var(--line);padding:16px 18px;margin-top:8px;}
+  .att th{font-size:12px;color:var(--sub);font-weight:normal;white-space:nowrap;}
+  .att td{padding:6px 8px;}
+  .att .nm{white-space:nowrap;}
+  .att .gr{display:inline-block;font-size:11px;color:var(--bg);background:var(--sub);border-radius:3px;padding:0 5px;margin-left:6px;vertical-align:middle;}
+  .att .gr.g2{background:#8fb6d9;}
+  .att .gr.g3{background:#c9b97f;}
+  .att .gr.g4{background:#d98f8f;}
+  .cell{cursor:pointer;text-align:center;user-select:none;font-size:16px;width:52px;}
+  .cell.onn{color:var(--ok);}
+  .cell.off{color:#4a453d;}
+  .sub{ text-align:center;font-size:13px;white-space:nowrap;}
+  .sub.yes{color:var(--ok);}
+  .sub.no{color:#4a453d;}
+  .groups{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;}
+  .gcard{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;min-width:180px;}
+  .gcard h3{margin:0 0 6px;font-size:13px;color:var(--accent);letter-spacing:.1em;font-weight:normal;}
+  .gcard ul{list-style:none;margin:0;padding:0;font-size:15px;line-height:1.9;}
+  .muted{color:var(--sub);font-size:13px;}
+  #unmatched{color:#d98f8f;font-size:13px;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -119,6 +148,52 @@
   <span class="offset" id="offsetLabel"></span>
 </div>
 
+<h2>出席・提出</h2>
+<div class="dash" id="rosterSetup">
+  <p class="muted">履修者名簿CSV(教務システムの書き出しそのまま、または「氏名,学年」形式)を選んでください。<strong>名簿はこのブラウザの中にだけ保存され、サイトには公開されません。</strong></p>
+  <input type="file" id="rosterFile" accept=".csv,.txt">
+</div>
+<div class="dash" id="attWrap" style="display:none">
+  <div class="controls" style="margin:0 0 8px">
+    <button id="subRefresh">提出状況を更新</button>
+    <span class="muted" id="subStatus"></span>
+    <button id="csvBtn">CSV書き出し</button>
+    <button id="rosterReset" style="margin-left:auto">名簿を入れ替え</button>
+  </div>
+  <table class="att">
+    <thead>
+      <tr><th>氏名</th><th>第1日</th><th>第2日</th><th>第3日</th><th>第4日</th><th>提出①</th><th>提出②</th></tr>
+    </thead>
+    <tbody id="attBody"></tbody>
+    <tfoot><tr id="attFoot"></tr></tfoot>
+  </table>
+  <div id="unmatched"></div>
+</div>
+
+<h2>グループ分け(学年バランス自動)</h2>
+<div class="dash" id="grpWrap">
+  <div class="controls" style="margin:0">
+    <label class="muted">グループ数
+      <select id="gcount">
+        <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+      </select>
+    </label>
+    <label class="muted">対象
+      <select id="gsource">
+        <option value="all" selected>名簿全員</option>
+        <option value="d1">第1日✅のみ</option>
+        <option value="d2">第2日✅のみ</option>
+        <option value="d3">第3日✅のみ</option>
+        <option value="d4">第4日✅のみ</option>
+      </select>
+    </label>
+    <button id="gshuffle">シャッフル</button>
+    <button id="gsave">この分けで確定</button>
+    <span class="muted" id="gstatus"></span>
+  </div>
+  <div class="groups" id="groupsView"></div>
+</div>
+
 <h2>タイムテーブル</h2>
 <table id="tt"></table>
 
@@ -126,20 +201,23 @@
 <div class="links">
   <a href="./day1.html" target="_blank">day1ページ</a>
   <a href="./day1.html?full=1" target="_blank">day1(全表示・投影用)</a>
+  <a href="./slides-shiza.html" target="_blank">視座スライド</a>
   <a href="./day1-tsuzuki-k4x9.html" target="_blank">隠しページ(保険)</a>
+  <a href="./archive2022-day1.html" target="_blank">2022年版資料</a>
   <a href="https://docs.google.com/spreadsheets/d/145vxIZmye7B5ejB_ZM36qcubg6JSZ-nK9-6Xlr_Npvs/edit" target="_blank">回答シート①</a>
   <a href="https://docs.google.com/spreadsheets/d/1e5V3MDdYaDvW88DUsjqtxKtNWBpNDKjnRm-4RndoZ7c/edit" target="_blank">回答シート②</a>
 </div>
 
-<p class="warnnote">公開ボタンはntfy.sh経由。教室のネットワークで通らない場合は、隠しページのQR共有に切り替える(従来どおり)。学生ページ側は day1.html?full=1 でも全表示できる。</p>
+<p class="warnnote">公開ボタンと提出状況はネットワーク経由(ntfy.sh / Apps Script)。教室のネットワークで通らない場合は、隠しページのQR共有と回答シートの直接確認に切り替える。名簿・出席・グループはこのブラウザ内で完結する(同じPCで開くこと)。</p>
 
 <script>
 const TOPIC = 'mczemi26-reveal-k4x9';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw-SjXhfXfqmqySq04yl1AjSkixLsBdkcPjt8ZPFLE40o4ZqQZAMqG4rxKBsGIKQC9PXA/exec';
 const SCHEDULE = [
-  {s:'09:00', e:'09:30', label:'オリエンテーション+視座の要約', note:'科目説明/4日のテーマ名(中身は言わない)/評価/持ち物。メディア論の視座を要約して「以後のワークはすべてこの視座の練習」と宣言'},
+  {s:'09:00', e:'09:30', label:'オリエンテーション+視座の要約', note:'科目説明/4日のテーマ名(中身は言わない)/評価/持ち物。視座スライドを使う。「以後のワークはすべてこの視座の練習」と宣言'},
   {s:'09:30', e:'09:40', label:'ワーク出題', note:'「3分以内の自己紹介。AI使用可。発表は自分自身で。文章は作成時間の終わりに提出」。制約は足さない'},
   {s:'09:40', e:'10:25', label:'作成時間', note:'机間を回らず放置する。day1ページとフォーム①の場所だけ案内しておく'},
-  {s:'10:25', e:'10:45', label:'提出①・発表準備', note:'提出17件を確認。発表順を決める(第二発表も同じ順にする)'},
+  {s:'10:25', e:'10:45', label:'提出①・発表準備', note:'「提出状況を更新」で17件を確認。発表順を決める(第二発表も同じ順にする)'},
   {s:'10:45', e:'10:55', label:'休憩', note:''},
   {s:'10:55', e:'11:55', label:'第一発表(3分×17)', note:'回答シート①を手元で開き、類似構文に当たりをつけておく'},
   {s:'11:55', e:'12:05', label:'問いの提示', note:'「いまの文章と発表の主体性はどこにあったのか」→ ここで上の「つづきを公開」を押す'},
@@ -147,7 +225,7 @@ const SCHEDULE = [
   {s:'12:40', e:'13:25', label:'昼休み', note:'発酵の時間。議論は開いたまま'},
   {s:'13:25', e:'13:55', label:'再考・作り直し', note:'「今度は全員、AIを使う。一回目に使わなかった人も」。発表は同じ3分'},
   {s:'13:55', e:'14:55', label:'第二発表(3分×17)', note:'順番は一回目と同じ。同条件で比較する'},
-  {s:'14:55', e:'15:10', label:'ブリッジ・締め', note:'「自分の言葉を機械に預ける問題は、AIが最初ではない。150年前、声を身体から切り離す機械が現れたときから始まっている」/提出②の案内/第2日予告(黎明期→E.A.T.→人間のいないラジオ局)'}
+  {s:'14:55', e:'15:10', label:'ブリッジ・締め', note:'「自分の言葉を機械に預ける問題は、AIが最初ではない。150年前、声を身体から切り離す機械が現れたときから始まっている」/提出②の案内/第2日予告'}
 ];
 
 let offset = parseInt(localStorage.getItem('mc_t_offset') || '0', 10);
@@ -161,8 +239,7 @@ function toDate(hm){
 function fmt(n){ return String(n).padStart(2, '0'); }
 function fmtDur(ms){
   const t = Math.max(0, Math.floor(ms / 1000));
-  const m = Math.floor(t / 60), s = t % 60;
-  return fmt(m) + ':' + fmt(s);
+  return fmt(Math.floor(t / 60)) + ':' + fmt(t % 60);
 }
 function shift(v){
   offset = (v === 0) ? 0 : offset + v;
@@ -179,7 +256,6 @@ function render(){
   for (let i = 0; i < SCHEDULE.length; i++){
     if (now >= toDate(SCHEDULE[i].s) && now < toDate(SCHEDULE[i].e)) { cur = i; break; }
   }
-
   const segLabel = document.getElementById('segLabel');
   const segRange = document.getElementById('segRange');
   const cd = document.getElementById('countdown');
@@ -193,7 +269,7 @@ function render(){
     cd.textContent = fmtDur(toDate(SCHEDULE[0].s) - now);
     cd.classList.remove('warn');
     cdLabel.textContent = '開始まで';
-    segNote.textContent = 'プロジェクター確認/フォーム①テスト送信(後で行を削除)/くじの準備';
+    segNote.textContent = 'プロジェクター確認/フォーム①テスト送信(後で行を削除)/名簿の読み込み';
     nextLabel.textContent = '';
   } else if (cur === -1){
     segLabel.textContent = '本日終了';
@@ -206,7 +282,7 @@ function render(){
     const seg = SCHEDULE[cur];
     const remain = toDate(seg.e) - now;
     segLabel.textContent = seg.label;
-    segRange.textContent = seg.s + '〜' + seg.e + (offset !== 0 ? '(補正後 ' + toDate(seg.s).toTimeString().slice(0,5) + '〜' + toDate(seg.e).toTimeString().slice(0,5) + ')' : '');
+    segRange.textContent = seg.s + '〜' + seg.e;
     cd.textContent = fmtDur(remain);
     cd.classList.toggle('warn', remain < 3 * 60 * 1000);
     cdLabel.textContent = '残り時間';
@@ -214,7 +290,6 @@ function render(){
     const nxt = SCHEDULE[cur + 1];
     nextLabel.textContent = nxt ? ('次: ' + nxt.s + '〜 ' + nxt.label) : '次: 終了';
   }
-
   const tt = document.getElementById('tt');
   tt.innerHTML = SCHEDULE.map(function(g, i){
     let cls = '';
@@ -223,7 +298,6 @@ function render(){
     return '<tr class="' + cls + '"><td class="t">' + g.s + '〜' + g.e + '</td><td class="l">' + g.label + '</td><td>' + g.note + '</td></tr>';
   }).join('');
 }
-
 setInterval(render, 1000);
 render();
 
@@ -246,11 +320,227 @@ btn.addEventListener('click', function(){
       btn.disabled = false;
     })
     .catch(function(e){
-      st.textContent = '送信失敗(' + e.message + ')。ネットワークが弾いている可能性。QR共有に切り替えを';
+      st.textContent = '送信失敗(' + e.message + ')。QR共有に切り替えを';
       st.classList.remove('ok');
       btn.disabled = false;
     });
 });
+
+/* ================= ダッシュボード ================= */
+function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) || d; } catch(e){ return d; } }
+function lsSet(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+function norm(s){ return String(s || '').replace(/[\s　]+/g, ''); }
+
+let roster = lsGet('mc_roster', null);
+let att = lsGet('mc_att', {});
+let subs = lsGet('mc_subs', {f1: [], f2: [], at: ''});
+let groups = lsGet('mc_groups', null);
+
+function parseCSV(text){
+  const rows = [];
+  let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else { q = false; } }
+      else cell += c;
+    } else {
+      if (c === '"') q = true;
+      else if (c === ','){ row.push(cell); cell = ''; }
+      else if (c === '\n'){ row.push(cell); rows.push(row); row = []; cell = ''; }
+      else if (c !== '\r') cell += c;
+    }
+  }
+  if (cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(c){ return c !== ''; }); });
+}
+
+function parseRoster(text){
+  const rows = parseCSV(text);
+  if (!rows.length) return null;
+  if (rows[0][0] && rows[0][0].indexOf('年度') !== -1){
+    return rows.slice(2).filter(function(r){ return r[3]; }).map(function(r){
+      return { name: r[3].trim(), kana: (r[4]||'').trim(), grade: (r[6]||'').trim(), dept: (r[8]||'').trim(), sid: (r[9]||'').trim() };
+    });
+  }
+  const start = (norm(rows[0][0]).indexOf('氏名') !== -1) ? 1 : 0;
+  return rows.slice(start).filter(function(r){ return r[0]; }).map(function(r, i){
+    return { name: r[0].trim(), kana: '', grade: (r[1]||'').trim(), dept: '', sid: (r[2]||('s'+i)).trim() };
+  });
+}
+
+document.getElementById('rosterFile').addEventListener('change', function(ev){
+  const f = ev.target.files[0];
+  if (!f) return;
+  f.arrayBuffer().then(function(buf){
+    let text;
+    try { text = new TextDecoder('utf-8', {fatal: true}).decode(buf); }
+    catch(e){ text = new TextDecoder('shift_jis').decode(buf); }
+    const r = parseRoster(text);
+    if (!r || !r.length){ alert('名簿を読み取れませんでした'); return; }
+    roster = r;
+    lsSet('mc_roster', roster);
+    renderDash();
+  });
+});
+
+document.getElementById('rosterReset').addEventListener('click', function(){
+  if (!confirm('名簿・出席・グループをこのブラウザから消去しますか?')) return;
+  ['mc_roster','mc_att','mc_groups','mc_subs'].forEach(function(k){ localStorage.removeItem(k); });
+  roster = null; att = {}; groups = null; subs = {f1:[],f2:[],at:''};
+  renderDash();
+});
+
+function key(s){ return s.sid || s.name; }
+function subFor(list, s){
+  const found = (list || []).find(function(x){ return norm(x.n) === norm(s.name); });
+  return found || null;
+}
+
+function renderDash(){
+  const has = roster && roster.length;
+  document.getElementById('rosterSetup').style.display = has ? 'none' : 'block';
+  document.getElementById('attWrap').style.display = has ? 'block' : 'none';
+  if (!has){ document.getElementById('groupsView').innerHTML = ''; return; }
+
+  const body = document.getElementById('attBody');
+  body.innerHTML = roster.map(function(s){
+    const a = att[key(s)] || {};
+    const days = ['d1','d2','d3','d4'].map(function(d){
+      return '<td class="cell ' + (a[d] ? 'onn' : 'off') + '" data-k="' + key(s) + '" data-d="' + d + '">' + (a[d] ? '✅' : '・') + '</td>';
+    }).join('');
+    const s1 = subFor(subs.f1, s), s2 = subFor(subs.f2, s);
+    return '<tr><td class="nm">' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span></td>' + days +
+      '<td class="sub ' + (s1 ? 'yes' : 'no') + '">' + (s1 ? '✓ ' + s1.t : '—') + '</td>' +
+      '<td class="sub ' + (s2 ? 'yes' : 'no') + '">' + (s2 ? '✓ ' + s2.t : '—') + '</td></tr>';
+  }).join('');
+
+  const foot = document.getElementById('attFoot');
+  const totals = ['d1','d2','d3','d4'].map(function(d){
+    return roster.filter(function(s){ return (att[key(s)] || {})[d]; }).length;
+  });
+  const c1 = roster.filter(function(s){ return subFor(subs.f1, s); }).length;
+  const c2 = roster.filter(function(s){ return subFor(subs.f2, s); }).length;
+  foot.innerHTML = '<td class="muted">計 ' + roster.length + '名</td>' +
+    totals.map(function(t){ return '<td class="muted" style="text-align:center">' + t + '</td>'; }).join('') +
+    '<td class="muted" style="text-align:center">' + c1 + '</td><td class="muted" style="text-align:center">' + c2 + '</td>';
+
+  const un = [];
+  ['f1','f2'].forEach(function(f, fi){
+    (subs[f] || []).forEach(function(x){
+      if (!roster.some(function(s){ return norm(s.name) === norm(x.n); })){
+        un.push('提出' + (fi + 1) + ':「' + x.n + '」');
+      }
+    });
+  });
+  document.getElementById('unmatched').textContent = un.length ? '名簿と一致しない提出: ' + un.join(' / ') + '(表記ゆれの可能性)' : '';
+
+  renderGroups();
+}
+
+document.getElementById('attBody').addEventListener('click', function(ev){
+  const td = ev.target.closest('.cell');
+  if (!td) return;
+  const k = td.dataset.k, d = td.dataset.d;
+  att[k] = att[k] || {};
+  att[k][d] = !att[k][d];
+  lsSet('mc_att', att);
+  renderDash();
+});
+
+document.getElementById('subRefresh').addEventListener('click', fetchSubs);
+function fetchSubs(){
+  const el = document.getElementById('subStatus');
+  el.textContent = '取得中…';
+  fetch(GAS_URL).then(function(r){ return r.json(); }).then(function(j){
+    subs = j;
+    lsSet('mc_subs', subs);
+    el.textContent = j.at + ' 時点';
+    renderDash();
+  }).catch(function(e){
+    el.textContent = '取得失敗(' + e.message + ')。回答シートを直接確認を';
+  });
+}
+
+document.getElementById('csvBtn').addEventListener('click', function(){
+  if (!roster) return;
+  const head = '氏名,学年,学籍番号,第1日,第2日,第3日,第4日,提出①,提出②\n';
+  const lines = roster.map(function(s){
+    const a = att[key(s)] || {};
+    return [s.name, s.grade, s.sid,
+      a.d1 ? '○' : '', a.d2 ? '○' : '', a.d3 ? '○' : '', a.d4 ? '○' : '',
+      subFor(subs.f1, s) ? '○' : '', subFor(subs.f2, s) ? '○' : ''].join(',');
+  }).join('\n');
+  const blob = new Blob(['\ufeff' + head + lines], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '出席簿_メディア文化ゼミナール.csv';
+  a.click();
+});
+
+/* ---- グループ分け ---- */
+function shuffleArr(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function makeGroups(students, n){
+  const byGrade = {};
+  students.forEach(function(s){ (byGrade[s.grade] = byGrade[s.grade] || []).push(s); });
+  const strata = Object.keys(byGrade)
+    .sort(function(a, b){ return byGrade[b].length - byGrade[a].length; })
+    .map(function(g){ return shuffleArr(byGrade[g]); });
+  const gs = [];
+  for (let i = 0; i < n; i++) gs.push([]);
+  let idx = 0, dir = 1;
+  strata.forEach(function(list){
+    list.forEach(function(s){
+      gs[idx].push(s);
+      idx += dir;
+      if (idx === n){ idx = n - 1; dir = -1; }
+      else if (idx === -1){ idx = 0; dir = 1; }
+    });
+  });
+  return gs;
+}
+function groupSource(){
+  const v = document.getElementById('gsource').value;
+  if (!roster) return [];
+  if (v === 'all') return roster;
+  return roster.filter(function(s){ return (att[key(s)] || {})[v]; });
+}
+document.getElementById('gshuffle').addEventListener('click', function(){
+  const n = parseInt(document.getElementById('gcount').value, 10);
+  const src = groupSource();
+  if (!src.length){ document.getElementById('gstatus').textContent = '対象の学生がいません'; return; }
+  groups = makeGroups(src, n).map(function(g){ return g.map(key); });
+  document.getElementById('gstatus').textContent = '未確定(「確定」で保存)';
+  renderGroups();
+});
+document.getElementById('gsave').addEventListener('click', function(){
+  if (!groups){ return; }
+  lsSet('mc_groups', groups);
+  document.getElementById('gstatus').textContent = '確定・保存しました';
+});
+function renderGroups(){
+  const view = document.getElementById('groupsView');
+  if (!groups || !roster){ view.innerHTML = '<p class="muted">「シャッフル」でグループ案を作成</p>'; return; }
+  const byKey = {};
+  roster.forEach(function(s){ byKey[key(s)] = s; });
+  view.innerHTML = groups.map(function(g, i){
+    const items = g.map(function(k){
+      const s = byKey[k];
+      return s ? '<li>' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span></li>' : '';
+    }).join('');
+    return '<div class="gcard"><h3>グループ ' + String.fromCharCode(65 + i) + '(' + g.length + '名)</h3><ul>' + items + '</ul></div>';
+  }).join('');
+}
+
+renderDash();
+if (roster) fetchSubs();
 </script>
 
 </div>
