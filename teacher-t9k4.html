@@ -100,6 +100,7 @@
   .att th{font-size:12px;color:var(--sub);font-weight:normal;white-space:nowrap;}
   .att td{padding:6px 8px;}
   .att .nm{white-space:nowrap;}
+  .att .kn{display:block;font-size:11px;color:var(--sub);letter-spacing:.05em;line-height:1.2;}
   .att .gr{display:inline-block;font-size:11px;color:var(--bg);background:var(--sub);border-radius:3px;padding:0 5px;margin-left:6px;vertical-align:middle;}
   .att .gr.g2{background:#8fb6d9;}
   .att .gr.g3{background:#c9b97f;}
@@ -342,10 +343,10 @@ function parseCSV(text){
   for (let i = 0; i < text.length; i++){
     const c = text[i];
     if (q){
-      if (c === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else { q = false; } }
+      if (c === '\"'){ if (text[i+1] === '\"'){ cell += '\"'; i++; } else { q = false; } }
       else cell += c;
     } else {
-      if (c === '"') q = true;
+      if (c === '\"') q = true;
       else if (c === ','){ row.push(cell); cell = ''; }
       else if (c === '\n'){ row.push(cell); rows.push(row); row = []; cell = ''; }
       else if (c !== '\r') cell += c;
@@ -359,10 +360,12 @@ function parseRoster(text){
   const rows = parseCSV(text);
   if (!rows.length) return null;
   if (rows[0][0] && rows[0][0].indexOf('年度') !== -1){
+    // 教務システム形式: 3行目以降が学生。学籍番号=2, 氏名=3, カナ=4, 学年=6, 所属=8
     return rows.slice(2).filter(function(r){ return r[3]; }).map(function(r){
       return { name: r[3].trim(), kana: (r[4]||'').trim(), grade: (r[6]||'').trim(), dept: (r[8]||'').trim(), sid: (r[2]||'').trim() };
     });
   }
+  // 簡易形式: 氏名,学年[,学籍番号]
   const start = (norm(rows[0][0]).indexOf('氏名') !== -1) ? 1 : 0;
   return rows.slice(start).filter(function(r){ return r[0]; }).map(function(r, i){
     return { name: r[0].trim(), kana: '', grade: (r[1]||'').trim(), dept: '', sid: (r[2]||('s'+i)).trim() };
@@ -410,7 +413,7 @@ function renderDash(){
       return '<td class="cell ' + (a[d] ? 'onn' : 'off') + '" data-k="' + key(s) + '" data-d="' + d + '">' + (a[d] ? '✅' : '・') + '</td>';
     }).join('');
     const s1 = subFor(subs.f1, s), s2 = subFor(subs.f2, s);
-    return '<tr><td class="nm">' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span></td>' + days +
+    return '<tr><td class="nm">' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span>' + (s.kana ? '<span class="kn">' + s.kana + '</span>' : '') + '</td>' + days +
       '<td class="sub ' + (s1 ? 'yes' : 'no') + '">' + (s1 ? '✓ ' + s1.t : '—') + '</td>' +
       '<td class="sub ' + (s2 ? 'yes' : 'no') + '">' + (s2 ? '✓ ' + s2.t : '—') + '</td></tr>';
   }).join('');
@@ -464,14 +467,14 @@ function fetchSubs(){
 
 document.getElementById('csvBtn').addEventListener('click', function(){
   if (!roster) return;
-  const head = '氏名,学年,学籍番号,第1日,第2日,第3日,第4日,提出①,提出②\n';
+  const head = '氏名,カナ,学年,学籍番号,第1日,第2日,第3日,第4日,提出①,提出②\n';
   const lines = roster.map(function(s){
     const a = att[key(s)] || {};
-    return [s.name, s.grade, s.sid,
+    return [s.name, s.kana, s.grade, s.sid,
       a.d1 ? '○' : '', a.d2 ? '○' : '', a.d3 ? '○' : '', a.d4 ? '○' : '',
       subFor(subs.f1, s) ? '○' : '', subFor(subs.f2, s) ? '○' : ''].join(',');
   }).join('\n');
-  const blob = new Blob(['\ufeff' + head + lines], {type: 'text/csv'});
+  const blob = new Blob(['﻿' + head + lines], {type: 'text/csv'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = '出席簿_メディア文化ゼミナール.csv';
@@ -533,7 +536,7 @@ function renderGroups(){
   view.innerHTML = groups.map(function(g, i){
     const items = g.map(function(k){
       const s = byKey[k];
-      return s ? '<li>' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span></li>' : '';
+      return s ? '<li>' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span>' + (s.kana ? '<span class="kn">' + s.kana + '</span>' : '') + '</li>' : '';
     }).join('');
     return '<div class="gcard"><h3>グループ ' + String.fromCharCode(65 + i) + '(' + g.length + '名)</h3><ul>' + items + '</ul></div>';
   }).join('');
