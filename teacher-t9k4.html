@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>教員用|第1日 進行</title>
+<style>
+  :root{
+    --bg:#1c1a17;
+    --panel:#26231f;
+    --ink:#f2ede4;
+    --sub:#9a938a;
+    --accent:#ff6a3c;
+    --line:#3a362f;
+    --ok:#7fc97f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.7;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:24px 20px 60px;}
+  .head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;}
+  .head h1{font-size:16px;margin:0;letter-spacing:.1em;color:var(--sub);font-weight:normal;}
+  #clock{font-size:20px;font-variant-numeric:tabular-nums;color:var(--ink);}
+  .now{
+    margin:28px 0 8px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:6px solid var(--accent);
+    padding:22px 24px;
+  }
+  .now .seg{font-size:26px;font-weight:bold;letter-spacing:.04em;}
+  .now .range{color:var(--sub);font-size:14px;margin-top:2px;}
+  #countdown{
+    font-size:72px;
+    font-weight:bold;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:.04em;
+    line-height:1.2;
+    margin:8px 0 2px;
+  }
+  #countdown.warn{color:var(--accent);}
+  .cdlabel{color:var(--sub);font-size:13px;}
+  .note{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+    font-size:15px;
+  }
+  .next{color:var(--sub);font-size:14px;margin:6px 2px 24px;}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 26px;}
+  button{
+    background:var(--panel);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 16px;
+    font-size:14px;
+    cursor:pointer;
+  }
+  button:hover{border-color:var(--sub);}
+  #revealBtn{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+    font-size:16px;
+    font-weight:bold;
+    padding:14px 26px;
+  }
+  #revealBtn:disabled{opacity:.5;cursor:default;}
+  #revealStatus{font-size:13px;color:var(--sub);}
+  #revealStatus.ok{color:var(--ok);}
+  .offset{font-size:13px;color:var(--sub);}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  td.t{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--sub);width:110px;}
+  tr.past{opacity:.38;}
+  tr.cur{background:var(--panel);}
+  tr.cur td.t,tr.cur td.l{color:var(--accent);font-weight:bold;}
+  .links{margin-top:30px;font-size:13px;color:var(--sub);line-height:2;}
+  .links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);margin-right:14px;}
+  .links a:hover{border-color:var(--accent);}
+  h2{font-size:13px;color:var(--sub);letter-spacing:.15em;font-weight:normal;margin:34px 0 4px;}
+  .warnnote{font-size:12px;color:var(--sub);margin-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="head">
+  <h1>第1日 代替主体 — 進行(教員用。URLは非公開)</h1>
+  <div id="clock">--:--:--</div>
+</div>
+
+<div class="now">
+  <div class="seg" id="segLabel">—</div>
+  <div class="range" id="segRange"></div>
+  <div id="countdown">--:--</div>
+  <div class="cdlabel" id="cdLabel">残り時間</div>
+  <div class="note" id="segNote"></div>
+</div>
+<div class="next" id="nextLabel"></div>
+
+<div class="controls">
+  <button id="revealBtn">「つづき」を公開する</button>
+  <span id="revealStatus">未公開(問いの提示のタイミングで押す)</span>
+</div>
+
+<div class="controls">
+  <span class="offset">進行の補正:</span>
+  <button onclick="shift(-5)">-5分</button>
+  <button onclick="shift(5)">+5分(押し)</button>
+  <button onclick="shift(0)">リセット</button>
+  <span class="offset" id="offsetLabel"></span>
+</div>
+
+<h2>タイムテーブル</h2>
+<table id="tt"></table>
+
+<h2>リンク</h2>
+<div class="links">
+  <a href="./day1.html" target="_blank">day1ページ</a>
+  <a href="./day1.html?full=1" target="_blank">day1(全表示・投影用)</a>
+  <a href="./day1-tsuzuki-k4x9.html" target="_blank">隠しページ(保険)</a>
+  <a href="https://docs.google.com/spreadsheets/d/145vxIZmye7B5ejB_ZM36qcubg6JSZ-nK9-6Xlr_Npvs/edit" target="_blank">回答シート①</a>
+  <a href="https://docs.google.com/spreadsheets/d/1e5V3MDdYaDvW88DUsjqtxKtNWBpNDKjnRm-4RndoZ7c/edit" target="_blank">回答シート②</a>
+</div>
+
+<p class="warnnote">公開ボタンはntfy.sh経由。教室のネットワークで通らない場合は、隠しページのQR共有に切り替える(従来どおり)。学生ページ側は day1.html?full=1 でも全表示できる。</p>
+
+<script>
+const TOPIC = 'mczemi26-reveal-k4x9';
+const SCHEDULE = [
+  {s:'09:00', e:'09:30', label:'オリエンテーション+視座の要約', note:'科目説明/4日のテーマ名(中身は言わない)/評価/持ち物。メディア論の視座を要約して「以後のワークはすべてこの視座の練習」と宣言'},
+  {s:'09:30', e:'09:40', label:'ワーク出題', note:'「3分以内の自己紹介。AI使用可。発表は自分自身で。文章は作成時間の終わりに提出」。制約は足さない'},
+  {s:'09:40', e:'10:25', label:'作成時間', note:'机間を回らず放置する。day1ページとフォーム①の場所だけ案内しておく'},
+  {s:'10:25', e:'10:45', label:'提出①・発表準備', note:'提出17件を確認。発表順を決める(第二発表も同じ順にする)'},
+  {s:'10:45', e:'10:55', label:'休憩', note:''},
+  {s:'10:55', e:'11:55', label:'第一発表(3分×17)', note:'回答シート①を手元で開き、類似構文に当たりをつけておく'},
+  {s:'11:55', e:'12:05', label:'問いの提示', note:'「いまの文章と発表の主体性はどこにあったのか」→ ここで上の「つづきを公開」を押す'},
+  {s:'12:05', e:'12:40', label:'議論', note:'提出文の類似箇所をスクリーンに映す/手がかり3点を提示/まとめずに開いたまま昼へ'},
+  {s:'12:40', e:'13:25', label:'昼休み', note:'発酵の時間。議論は開いたまま'},
+  {s:'13:25', e:'13:55', label:'再考・作り直し', note:'「今度は全員、AIを使う。一回目に使わなかった人も」。発表は同じ3分'},
+  {s:'13:55', e:'14:55', label:'第二発表(3分×17)', note:'順番は一回目と同じ。同条件で比較する'},
+  {s:'14:55', e:'15:10', label:'ブリッジ・締め', note:'「自分の言葉を機械に預ける問題は、AIが最初ではない。150年前、声を身体から切り離す機械が現れたときから始まっている」/提出②の案内/第2日予告(黎明期→E.A.T.→人間のいないラジオ局)'}
+];
+
+let offset = parseInt(localStorage.getItem('mc_t_offset') || '0', 10);
+
+function toDate(hm){
+  const parts = hm.split(':');
+  const d = new Date();
+  d.setHours(Number(parts[0]), Number(parts[1]) + offset, 0, 0);
+  return d;
+}
+function fmt(n){ return String(n).padStart(2, '0'); }
+function fmtDur(ms){
+  const t = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(t / 60), s = t % 60;
+  return fmt(m) + ':' + fmt(s);
+}
+function shift(v){
+  offset = (v === 0) ? 0 : offset + v;
+  localStorage.setItem('mc_t_offset', String(offset));
+  render();
+}
+
+function render(){
+  const now = new Date();
+  document.getElementById('clock').textContent = fmt(now.getHours()) + ':' + fmt(now.getMinutes()) + ':' + fmt(now.getSeconds());
+  document.getElementById('offsetLabel').textContent = offset === 0 ? '補正なし' : ('全体を' + (offset > 0 ? '+' : '') + offset + '分ずらし中');
+
+  let cur = -1;
+  for (let i = 0; i < SCHEDULE.length; i++){
+    if (now >= toDate(SCHEDULE[i].s) && now < toDate(SCHEDULE[i].e)) { cur = i; break; }
+  }
+
+  const segLabel = document.getElementById('segLabel');
+  const segRange = document.getElementById('segRange');
+  const cd = document.getElementById('countdown');
+  const cdLabel = document.getElementById('cdLabel');
+  const segNote = document.getElementById('segNote');
+  const nextLabel = document.getElementById('nextLabel');
+
+  if (now < toDate(SCHEDULE[0].s)){
+    segLabel.textContent = '開始前';
+    segRange.textContent = '授業開始 ' + SCHEDULE[0].s + '(8601教室)';
+    cd.textContent = fmtDur(toDate(SCHEDULE[0].s) - now);
+    cd.classList.remove('warn');
+    cdLabel.textContent = '開始まで';
+    segNote.textContent = 'プロジェクター確認/フォーム①テスト送信(後で行を削除)/くじの準備';
+    nextLabel.textContent = '';
+  } else if (cur === -1){
+    segLabel.textContent = '本日終了';
+    segRange.textContent = '';
+    cd.textContent = '--:--';
+    cdLabel.textContent = '';
+    segNote.textContent = '提出②のリマインドを忘れずに。おつかれさまでした。';
+    nextLabel.textContent = '';
+  } else {
+    const seg = SCHEDULE[cur];
+    const remain = toDate(seg.e) - now;
+    segLabel.textContent = seg.label;
+    segRange.textContent = seg.s + '〜' + seg.e + (offset !== 0 ? '(補正後 ' + toDate(seg.s).toTimeString().slice(0,5) + '〜' + toDate(seg.e).toTimeString().slice(0,5) + ')' : '');
+    cd.textContent = fmtDur(remain);
+    cd.classList.toggle('warn', remain < 3 * 60 * 1000);
+    cdLabel.textContent = '残り時間';
+    segNote.textContent = seg.note;
+    const nxt = SCHEDULE[cur + 1];
+    nextLabel.textContent = nxt ? ('次: ' + nxt.s + '〜 ' + nxt.label) : '次: 終了';
+  }
+
+  const tt = document.getElementById('tt');
+  tt.innerHTML = SCHEDULE.map(function(g, i){
+    let cls = '';
+    if (now >= toDate(g.e)) cls = 'past';
+    if (i === cur) cls = 'cur';
+    return '<tr class="' + cls + '"><td class="t">' + g.s + '〜' + g.e + '</td><td class="l">' + g.label + '</td><td>' + g.note + '</td></tr>';
+  }).join('');
+}
+
+setInterval(render, 1000);
+render();
+
+const btn = document.getElementById('revealBtn');
+const st = document.getElementById('revealStatus');
+if (localStorage.getItem('mc_d1_sent') === '1'){
+  st.textContent = '公開信号は送信済み(再送も可)';
+  st.classList.add('ok');
+}
+btn.addEventListener('click', function(){
+  btn.disabled = true;
+  st.textContent = '送信中…';
+  fetch('https://ntfy.sh/' + TOPIC, { method: 'POST', body: 'reveal' })
+    .then(function(r){
+      if (!r.ok) throw new Error(r.status);
+      st.textContent = '公開しました(day1ページに「つづき」が展開されます)';
+      st.classList.add('ok');
+      localStorage.setItem('mc_d1_sent', '1');
+      btn.textContent = '再送する';
+      btn.disabled = false;
+    })
+    .catch(function(e){
+      st.textContent = '送信失敗(' + e.message + ')。ネットワークが弾いている可能性。QR共有に切り替えを';
+      st.classList.remove('ok');
+      btn.disabled = false;
+    });
+});
+</script>
+
+</div>
+</body>
+</html>
