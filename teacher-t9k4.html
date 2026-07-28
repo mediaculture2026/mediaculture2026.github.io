@@ -164,6 +164,7 @@
   <button onclick="shift(-5)">-5分</button>
   <button onclick="shift(5)">+5分(押し)</button>
   <button onclick="shift(0)">リセット</button>
+  <button onclick="jumpNext()">次の項目へ ≫</button>
   <span class="offset" id="offsetLabel"></span>
 </div>
 
@@ -279,6 +280,21 @@ function fmtDur(ms){
 }
 function shift(v){
   offset = (v === 0) ? 0 : offset + v;
+  localStorage.setItem('mc_t_offset', String(offset));
+  render();
+}
+
+function jumpNext(){
+  const now = new Date();
+  let target = null;
+  if (now < toDate(SCHEDULE[0].s)){ target = SCHEDULE[0]; }
+  else {
+    for (let i = 0; i < SCHEDULE.length; i++){
+      if (now >= toDate(SCHEDULE[i].s) && now < toDate(SCHEDULE[i].e)){ target = SCHEDULE[i + 1] || null; break; }
+    }
+  }
+  if (!target) return;
+  offset -= Math.ceil((toDate(target.s) - now) / 60000);
   localStorage.setItem('mc_t_offset', String(offset));
   render();
 }
