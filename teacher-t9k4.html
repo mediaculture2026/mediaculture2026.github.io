@@ -744,6 +744,58 @@ document.addEventListener('keydown', function(e){
     });
   }
 })();
+
+/* ---- タイムテーブルをタイマー直下へ移動+第2日のリンクを行内に表示(7/29未明) ---- */
+(function(){
+  // 1) 「タイムテーブル」の見出しと表を、補正ボタン行の直後(出席・提出の上)へ移動
+  var tt = document.getElementById('tt');
+  var h2s = document.querySelectorAll('h2');
+  var ttH2 = null, attH2 = null;
+  for (var i = 0; i < h2s.length; i++){
+    var t = h2s[i].textContent;
+    if (t.indexOf('タイムテーブル') === 0) ttH2 = h2s[i];
+    if (t.indexOf('出席・提出') === 0) attH2 = h2s[i];
+  }
+  if (tt && ttH2 && attH2){
+    attH2.parentNode.insertBefore(ttH2, attH2);
+    attH2.parentNode.insertBefore(tt, attH2);
+  }
+  // 2) 第2日は各セグメントの行に、その場で使うリンクを出す
+  var d = new Date();
+  if (!(d.getMonth() === 6 && d.getDate() === 29) || !tt) return;
+  var css = document.createElement('style');
+  css.textContent = '.seg-links{margin-top:4px;font-size:12px;}' +
+    '.seg-links a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);margin-right:12px;}';
+  document.head.appendChild(css);
+  function L(href, label){ return '<a href="' + href + '" target="_blank">' + label + '</a>'; }
+  var LINKS = {
+    '前日の回収': [L('https://docs.google.com/spreadsheets/d/1e5V3MDdYaDvW88DUsjqtxKtNWBpNDKjnRm-4RndoZ7c/edit', '回答シート②')],
+    '講義 通信メディアの黎明期': [L('./day2.html', 'day2ページ'), L('./archive2022-day2.html', '参照資料(投影用)')],
+    'E.A.T.と9 Evenings 導入': [L('https://vimeo.com/107488380', 'Open Score映像'), L('./day2.html', 'day2ページ')],
+    'E.A.T. 映像と解説': [L('./day2-2-m7q2.html', '2限ページ'), L('https://www.youtube.com/watch?v=-AbxOUyYz7g', 'The Note Ep3'), L('https://www.youtube.com/watch?v=B0coC9CxER4', 'E.A.T. 1960-2001')],
+    '人間のいないラジオ局': [L('https://bassdrum.org/ja/work/human-ai-experiment/', 'BASSDRUM')],
+    'Site-specific Musician': [L('https://docs.google.com/presentation/d/1w8IdisA5Jev9uKsdculBDso8UdMvbPLjJ0igYr7BlGQ/edit', 'スライド')],
+    '議論': [L('./day2-3-w8r5.html', '3限ページ')],
+    'ミニッツペーパー・締め': [L('./day2-3-w8r5.html', '3限ページ'), L('https://docs.google.com/spreadsheets/d/1RNTrF0JeUhBdA1LQsdD5EP13FnhrYAQsUE-kDb8Gcrs/edit', 'ミニッツ回答シート')]
+  };
+  function decorate(){
+    var trs = tt.querySelectorAll('tr');
+    for (var i = 0; i < trs.length; i++){
+      var tds = trs[i].children;
+      if (tds.length < 3) continue;
+      var links = LINKS[tds[1].textContent];
+      if (links && !tds[2].querySelector('.seg-links')){
+        var div = document.createElement('div');
+        div.className = 'seg-links';
+        div.innerHTML = links.join('');
+        tds[2].appendChild(div);
+      }
+    }
+  }
+  new MutationObserver(decorate).observe(tt, {childList: true, subtree: true});
+  decorate();
+})();
+
 </script>
 
 </div>
