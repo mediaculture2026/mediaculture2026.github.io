@@ -95,6 +95,16 @@
     font-size:15px;
   }
   .src{font-size:13px;color:var(--sub);margin:-8px 0 24px;padding-left:20px;}
+  .toi{
+    margin:48px 0;
+    padding:40px 24px;
+    background:#fff;
+    border:1px solid var(--line);
+    text-align:center;
+    font-size:22px;
+    line-height:1.8;
+    letter-spacing:.06em;
+  }
   footer{
     margin-top:80px;
     padding-top:20px;
@@ -115,10 +125,11 @@
 <div class="daylabel">DAY 2</div>
 <h1>介在する余地</h1>
 <p class="lede">担当 毛原大樹</p>
+<p class="note">このページは、授業の進行にあわせて2限・3限の内容が追加されます。</p>
 
 <h2><span class="num">1</span>前日から</h2>
 <p>昨日の問い——文章と発表の主体性は、どこにあったのか——は、まだ開いたままです。今日はこの問いを、150年の歴史と、いま動いている二つの実例で受け直します。</p>
-<blockquote>人間とAIは本質的にはコミュニケーションできない。AIと対峙しているとき、実はその背後にある学習データや設計者の思想、あるいはAIを媒介とした周囲の環境と対話している。そう捉えれば、AIは自分たちのいる環境をより深く感じるための媒介（メディア）になり得る。</blockquote>
+<blockquote>人間とAIは本質的にはコミュニケーションできない。AIと対峙しているとき、実はその背後にある学習データや設計者の思想、あるいはAIを媒介とした周囲の環境と対話している。そう捉えれば、AIは自分たちのいる環境をより深く感じるための媒介(メディア)になり得る。</blockquote>
 <p class="src">昨日の「考えるための手がかり」より。今日はこの一文を、実例で確かめます。</p>
 
 <h2><span class="num">2</span>講義 通信メディアの黎明期</h2>
@@ -138,31 +149,9 @@
   <p class="cap"><a href="https://vimeo.com/107488380" target="_blank" rel="noopener">Open Score, 9 Evenings: Theatre &amp; Engineering, 1966</a></p>
   <p class="note">Robert Rauschenberg|テニスラケットの一打が、照明を消していく</p>
 </div>
-<div class="vid">
-  <p class="cap"><a href="https://www.youtube.com/watch?v=-AbxOUyYz7g" target="_blank" rel="noopener">The Note Episode 3 | E.A.T.: Engineers, the Avant-Garde and a Tennis Court</a></p>
-  <p class="note">日本語訳字幕あり。必要な場合は字幕をオンにしてください</p>
-</div>
-<div class="vid">
-  <p class="cap"><a href="https://www.youtube.com/watch?v=B0coC9CxER4" target="_blank" rel="noopener">E.A.T.: Experiments in Art &amp; Technology, 1960-2001</a></p>
-  <p class="note">日本語訳字幕あり。必要な場合は字幕をオンにしてください</p>
-</div>
-<p><a href="https://www.ntticc.or.jp/ja/feature/2003/EAT/preface_j.html" target="_blank" rel="noopener">「E.A.T.─芸術と技術の実験」(NTTインターコミュニケーション・センター)</a></p>
 
-<h2><span class="num">4</span>人間のいないラジオ局</h2>
-<p>AIディレクターがロボットアームを操作してキーボードを打ち、AIパーソナリティにトークテーマを指示する。生成された発話はスピーカーから空気中に出て、マイクで拾われる。すべて機械で完結できるはずの伝達を、あえて物理空間に露出させたラジオ局。</p>
-<p>情報が物理空間を通るとき、そこに何が生まれるかを観察してください。</p>
-<p><a href="https://bassdrum.org/ja/work/human-ai-experiment/" target="_blank" rel="noopener">BASSDRUM「ヒューマンAIエクスペリメント」</a></p>
-
-<h2><span class="num">5</span>Site-specific Musician</h2>
-<p>その場の環境情報から音楽を生成する自律装置。カメラの画像は音色(楽器の選定)に、気象情報は作曲に、GPSはその土地の文化傾向に変換されます。神戸港でのセッション実験では、人間の演奏者との共演が試されました。</p>
-<p><a href="https://docs.google.com/presentation/d/1w8IdisA5Jev9uKsdculBDso8UdMvbPLjJ0igYr7BlGQ/edit" target="_blank" rel="noopener">Site-specific Musician(スライド)</a></p>
-
-<h2><span class="num">6</span>ミニッツペーパー(本日の提出)</h2>
-<div class="kadai">
-  <p><strong>今日の題材のどこに、人間の「余地」を見ましたか。</strong></p>
-  <p>いちばん引っかかった箇所を一つ選び、そこで何が起きていたと思うかを書いてください。質問があれば、あわせてどうぞ。授業の最後に提出します。</p>
-</div>
-<p><a class="btn" href="https://forms.gle/qLYMDSsHZc83nvFr9" target="_blank" rel="noopener">ミニッツペーパー提出フォーム</a></p>
+<div id="stage2"></div>
+<div id="stage3"></div>
 
 <div class="navrow">
   <a href="./day1.html">← 第1日 代替主体</a>
@@ -172,6 +161,55 @@
 <footer>
   © 2026 Hiroki Kehara|メディア文化ゼミナール
 </footer>
+
+<script>
+(function(){
+  var TOPIC = 'mczemi26-reveal-k4x9';
+  var STAGES = {
+    s2: {src: './day2-2-m7q2.html', slot: 'stage2', key: 'mc_d2_s2', done: false},
+    s3: {src: './day2-3-w8r5.html', slot: 'stage3', key: 'mc_d2_s3', done: false}
+  };
+
+  function renumber(){
+    var nums = document.querySelectorAll('h2 .num');
+    for (var i = 0; i < nums.length; i++){ nums[i].textContent = String(i + 1); }
+  }
+
+  function reveal(st, persist){
+    if (st.done) return;
+    st.done = true;
+    fetch(st.src).then(function(r){ return r.text(); }).then(function(html){
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var wrap = doc.querySelector('.wrap');
+      if (!wrap) return;
+      var hd = wrap.querySelector('header'); if (hd) hd.remove();
+      var ft = wrap.querySelector('footer'); if (ft) ft.remove();
+      document.getElementById(st.slot).innerHTML = wrap.innerHTML;
+      renumber();
+      if (persist) { try { localStorage.setItem(st.key, '1'); } catch(e){} }
+    }).catch(function(){ st.done = false; });
+  }
+
+  if (location.search.indexOf('full=1') !== -1) { reveal(STAGES.s2, false); reveal(STAGES.s3, false); }
+  try {
+    if (localStorage.getItem('mc_d2_s2') === '1') { reveal(STAGES.s2, true); }
+    if (localStorage.getItem('mc_d2_s3') === '1') { reveal(STAGES.s3, true); }
+  } catch(e){}
+
+  try {
+    var es = new EventSource('https://ntfy.sh/' + TOPIC + '/sse?since=all');
+    es.onmessage = function(ev){
+      try {
+        var d = JSON.parse(ev.data);
+        if (d.event !== 'message') return;
+        var m = String(d.message || '');
+        if (m.indexOf('d2open2') !== -1) { reveal(STAGES.s2, true); }
+        if (m.indexOf('d2open3') !== -1) { reveal(STAGES.s3, true); }
+      } catch(e){}
+    };
+  } catch(e){}
+})();
+</script>
 
 </div>
 </body>
