@@ -365,7 +365,7 @@ btn.addEventListener('click', function(){
 /* ================= ダッシュボード ================= */
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) || d; } catch(e){ return d; } }
 function lsSet(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
-function norm(s){ return String(s || '').replace(/[\s　]+/g, ''); }
+function norm(s){ return String(s || '').replace(/[\s　※]+/g, ''); }
 
 let roster = lsGet('mc_roster', null);
 let att = lsGet('mc_att', {});
@@ -394,6 +394,12 @@ function parseCSV(text){
 function parseRoster(text){
   const rows = parseCSV(text);
   if (!rows.length) return null;
+  if (rows[0][0] && rows[0][0].indexOf('氏名') !== -1 && rows[0][1] && rows[0][1].indexOf('カナ') !== -1){
+    // 出席簿CSV形式(このページの書き出し): 氏名,カナ,学年,学籍番号,...
+    return rows.slice(1).filter(function(r){ return r[0]; }).map(function(r, i){
+      return { name: r[0].trim(), kana: (r[1]||'').trim(), grade: (r[2]||'').trim(), dept: '', sid: (r[3]||('x'+i)).trim() };
+    });
+  }
   if (rows[0][0] && rows[0][0].indexOf('年度') !== -1){
     // 教務システム形式: 3行目以降が学生。学籍番号=2, 氏名=3, カナ=4, 学年=6, 所属=8
     return rows.slice(2).filter(function(r){ return r[3]; }).map(function(r){
