@@ -633,6 +633,27 @@ qrOverlay.addEventListener('click', function(){ qrOverlay.classList.remove('on')
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape') qrOverlay.classList.remove('on');
 });
+
+/* ---- 第2日(7/29)のタイムテーブル。日付で自動切り替え ---- */
+(function(){
+  var d = new Date();
+  if (d.getMonth() === 6 && d.getDate() === 29){
+    document.querySelector('.head h1').textContent = '第2日 介在する余地 — 進行(教員用。URLは非公開)';
+    SCHEDULE.length = 0;
+    [
+      {s:'09:00', e:'09:25', label:'前日の回収', note:'提出②の文章から数点を紹介。「自然さは誰のものでもない声」を引き継いで今日へ'},
+      {s:'09:25', e:'10:15', label:'講義 通信メディアの黎明期', note:'視座の回収(年表)→ミュージカル・テレフォン→ストックホルム電話塔→テスラ。参照資料ページを投影'},
+      {s:'10:15', e:'10:45', label:'E.A.T.と9 Evenings 導入', note:'Open Score映像(Vimeo)。テニスラケットの一打が照明を消す'},
+      {s:'10:45', e:'10:55', label:'休憩', note:''},
+      {s:'10:55', e:'11:50', label:'E.A.T. 映像と解説', note:'The Note Ep3(約15分)/E.A.T. 1960-2001(約35分)。日本語字幕オン'},
+      {s:'11:50', e:'12:40', label:'人間のいないラジオ局', note:'BASSDRUM。伝達プロセスを物理空間に露出させると、人間の介入する余地が生まれる'},
+      {s:'12:40', e:'13:25', label:'昼休み', note:''},
+      {s:'13:25', e:'14:10', label:'Site-specific Musician', note:'スライド投影。画像=音色、気象=作曲、GPS=文化傾向。神戸港セッションの話'},
+      {s:'14:10', e:'14:50', label:'議論', note:'「今日の題材のどこに、人間の余地を見たか」。昨日の主体性の問いと接続する'},
+      {s:'14:50', e:'15:10', label:'ミニッツペーパー・締め', note:'フォーム③(day2ページの一番下)。第3日予告: スマホ持参・iOSはマナースイッチ解除'}
+    ].forEach(function(x){ SCHEDULE.push(x); });
+  }
+})();
 </script>
 
 </div>
