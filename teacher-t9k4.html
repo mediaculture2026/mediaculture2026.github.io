@@ -842,6 +842,134 @@ document.addEventListener('keydown', function(e){
   if (tt){ new MutationObserver(decorate2).observe(tt, {childList: true, subtree: true}); decorate2(); }
 })();
 
+
+/* ---- 第3日(7/30) タイムテーブル・公開ボタン・リンク・QR ---- */
+(function(){
+  var d = new Date();
+  if (!(d.getMonth() === 6 && d.getDate() === 30)) return;
+
+  var h1 = document.querySelector('.head h1');
+  if (h1) h1.textContent = '第3日 メディアのハック — 進行(教員用。URLは非公開)';
+
+  SCHEDULE.length = 0;
+  [
+    {s:'09:00', e:'09:20', label:'前日の回収', note:'ミニッツペーパーから数点。「余地」から「制約を乗りこなす」へ話をつなぐ'},
+    {s:'09:20', e:'10:15', label:'講義 自由ラジオとミニFM', note:'粉川哲夫/ミニFM/Radio Caroline/海上要塞/ラジオ塔。制度の外側に送信機を置く'},
+    {s:'10:15', e:'10:45', label:'既存メディアのハック', note:'ファミコンラジオ・人間ラジコン。実物と映像で'},
+    {s:'10:45', e:'10:55', label:'休憩', note:'ここで「2限を公開」を押しておく'},
+    {s:'10:55', e:'11:10', label:'ポケベル導入', note:'短い・返せない・誰か分からない。発信ページを開かせ、各自4桁のベル番号を決める。iOSマナースイッチ確認'},
+    {s:'11:10', e:'11:40', label:'段階1 数字だけ', note:'語呂合わせが自然に発明される。ひととおり出たら 0840 4649 14106 を提示して答え合わせ'},
+    {s:'11:40', e:'12:20', label:'段階2 2タッチかな', note:'受信ページで「段階2」を押すと、学生のページに符号表が出て、大画面もかなを解読しはじめる'},
+    {s:'12:20', e:'12:40', label:'段階3 輻輳と講評', note:'「段階3」を押してから一斉送信させる。話中で弾かれる。制約が力になる話で締める'},
+    {s:'12:40', e:'13:25', label:'昼休み', note:''},
+    {s:'13:25', e:'13:55', label:'MABATAKI SIGNAL', note:'光で符号を運ぶ。運び手が変わっても手順は同じ、というところまで'},
+    {s:'13:55', e:'14:10', label:'最終課題の提示', note:'電気を使わずに離れた場所へ伝える。評価は方式の発想。成否は問わないと明言する'},
+    {s:'14:10', e:'15:10', label:'グループワーク着手', note:'グループ分け→方式の検討→明日必要な持ち物の洗い出し'}
+  ].forEach(function(x){ SCHEDULE.push(x); });
+
+  /* 公開ボタン */
+  var ref = document.getElementById('revealBtn');
+  if (ref){
+    var row = document.createElement('div');
+    row.className = 'controls';
+    row.innerHTML = '<span class="offset">第3日:</span>' +
+      '<button id="d3s2Btn">2限を公開(ポケベル)</button>' +
+      '<button id="d3s3Btn">3限を公開(MABATAKI+最終課題)</button>' +
+      '<span id="d3Status" class="offset"></span>';
+    ref.parentNode.parentNode.insertBefore(row, ref.parentNode.nextSibling);
+    var st = document.getElementById('d3Status');
+    function wire(id, msg, key, label){
+      var b = document.getElementById(id);
+      if (localStorage.getItem(key) === '1'){ b.textContent = label + '(送信済み・再送可)'; }
+      b.addEventListener('click', function(){
+        b.disabled = true; st.textContent = '送信中…';
+        fetch('https://ntfy.sh/' + TOPIC, { method:'POST', body: msg })
+          .then(function(r){
+            if (!r.ok) throw new Error(r.status);
+            st.textContent = label + 'を公開しました(day3ページに展開されます)';
+            localStorage.setItem(key, '1');
+            b.textContent = label + 'を再送する'; b.disabled = false;
+          })
+          .catch(function(e){
+            st.textContent = '送信失敗(' + e.message + ')。隠しページのQR共有に切り替えを';
+            b.disabled = false;
+          });
+      });
+    }
+    wire('d3s2Btn', 'd3open2', 'mc_d3s2_sent', '2限');
+    wire('d3s3Btn', 'd3open3', 'mc_d3s3_sent', '3限');
+  }
+
+  /* リンク欄 */
+  var links = document.querySelector('.links');
+  if (links){
+    [
+      ['./day3.html', 'day3ページ'],
+      ['./pager-view-q7m2.html', 'ポケベル受信(投影用)'],
+      ['./pager.html', 'ポケベル発信(学生用)'],
+      ['./day3-2-k5n8.html', 'day3 2限 隠しページ'],
+      ['./day3-3-t2v6.html', 'day3 3限 隠しページ']
+    ].forEach(function(x){
+      var a = document.createElement('a');
+      a.href = x[0]; a.target = '_blank'; a.textContent = x[1];
+      links.appendChild(a);
+    });
+  }
+
+  /* QR */
+  QR_PAGES.day3 = {label: '第3日 レジュメページ', url: 'https://mediaculture2026.github.io/day3.html'};
+  QR_DATA.day3 = {"n":33,"d":"M0 0h7v1h-7zM9 0h2v1h-2zM12 0h3v1h-3zM16 0h2v1h-2zM19 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h3v1h-3zM13 1h3v1h-3zM17 1h1v1h-1zM22 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM10 2h2v1h-2zM13 2h1v1h-1zM15 2h1v1h-1zM17 2h3v1h-3zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h4v1h-4zM14 3h1v1h-1zM16 3h1v1h-1zM20 3h3v1h-3zM24 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h2v1h-2zM15 4h1v1h-1zM18 4h1v1h-1zM21 4h1v1h-1zM24 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM14 5h3v1h-3zM18 5h1v1h-1zM20 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h2v1h-2zM12 7h1v1h-1zM14 7h2v1h-2zM18 7h1v1h-1zM21 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM11 8h5v1h-5zM17 8h2v1h-2zM20 8h1v1h-1zM22 8h3v1h-3zM26 8h5v1h-5zM2 9h2v1h-2zM7 9h2v1h-2zM11 9h2v1h-2zM16 9h1v1h-1zM19 9h1v1h-1zM21 9h3v1h-3zM26 9h2v1h-2zM29 9h2v1h-2zM32 9h1v1h-1zM1 10h1v1h-1zM3 10h4v1h-4zM8 10h1v1h-1zM11 10h2v1h-2zM15 10h1v1h-1zM18 10h1v1h-1zM20 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM1 11h1v1h-1zM7 11h1v1h-1zM12 11h1v1h-1zM14 11h3v1h-3zM20 11h3v1h-3zM24 11h3v1h-3zM28 11h4v1h-4zM3 12h2v1h-2zM6 12h1v1h-1zM9 12h4v1h-4zM15 12h1v1h-1zM18 12h1v1h-1zM21 12h1v1h-1zM23 12h2v1h-2zM28 12h2v1h-2zM32 12h1v1h-1zM4 13h1v1h-1zM8 13h3v1h-3zM14 13h3v1h-3zM20 13h4v1h-4zM26 13h2v1h-2zM29 13h1v1h-1zM31 13h2v1h-2zM1 14h1v1h-1zM4 14h4v1h-4zM9 14h1v1h-1zM14 14h1v1h-1zM17 14h3v1h-3zM21 14h2v1h-2zM25 14h2v1h-2zM29 14h1v1h-1zM31 14h1v1h-1zM0 15h1v1h-1zM3 15h3v1h-3zM7 15h1v1h-1zM9 15h6v1h-6zM16 15h1v1h-1zM18 15h5v1h-5zM25 15h4v1h-4zM30 15h1v1h-1zM0 16h2v1h-2zM5 16h2v1h-2zM8 16h3v1h-3zM12 16h1v1h-1zM16 16h4v1h-4zM22 16h4v1h-4zM27 16h2v1h-2zM32 16h1v1h-1zM0 17h1v1h-1zM2 17h3v1h-3zM10 17h3v1h-3zM16 17h2v1h-2zM19 17h2v1h-2zM23 17h1v1h-1zM26 17h2v1h-2zM29 17h2v1h-2zM32 17h1v1h-1zM5 18h3v1h-3zM9 18h1v1h-1zM12 18h6v1h-6zM22 18h1v1h-1zM24 18h5v1h-5zM30 18h2v1h-2zM1 19h1v1h-1zM3 19h1v1h-1zM7 19h1v1h-1zM9 19h2v1h-2zM12 19h2v1h-2zM15 19h1v1h-1zM17 19h3v1h-3zM26 19h5v1h-5zM32 19h1v1h-1zM0 20h1v1h-1zM3 20h4v1h-4zM11 20h2v1h-2zM16 20h1v1h-1zM20 20h3v1h-3zM24 20h2v1h-2zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h3v1h-3zM4 21h1v1h-1zM7 21h2v1h-2zM12 21h1v1h-1zM14 21h2v1h-2zM18 21h1v1h-1zM23 21h1v1h-1zM26 21h1v1h-1zM29 21h1v1h-1zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h3v1h-3zM6 22h2v1h-2zM9 22h1v1h-1zM13 22h1v1h-1zM15 22h3v1h-3zM20 22h3v1h-3zM24 22h3v1h-3zM29 22h1v1h-1zM31 22h1v1h-1zM0 23h1v1h-1zM8 23h2v1h-2zM11 23h5v1h-5zM18 23h1v1h-1zM21 23h1v1h-1zM25 23h1v1h-1zM27 23h1v1h-1zM29 23h2v1h-2zM0 24h1v1h-1zM2 24h2v1h-2zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM15 24h1v1h-1zM17 24h2v1h-2zM20 24h1v1h-1zM22 24h1v1h-1zM24 24h5v1h-5zM31 24h2v1h-2zM8 25h2v1h-2zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h5v1h-5zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM11 26h1v1h-1zM15 26h2v1h-2zM18 26h1v1h-1zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM11 27h2v1h-2zM14 27h1v1h-1zM16 27h1v1h-1zM20 27h5v1h-5zM28 27h3v1h-3zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h2v1h-2zM14 28h2v1h-2zM18 28h1v1h-1zM21 28h1v1h-1zM24 28h6v1h-6zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM13 29h5v1h-5zM20 29h6v1h-6zM28 29h3v1h-3zM32 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h1v1h-1zM10 30h2v1h-2zM17 30h1v1h-1zM19 30h1v1h-1zM21 30h4v1h-4zM26 30h2v1h-2zM30 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h2v1h-2zM12 31h3v1h-3zM16 31h1v1h-1zM18 31h4v1h-4zM23 31h1v1h-1zM26 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM12 32h3v1h-3zM17 32h1v1h-1zM19 32h2v1h-2zM22 32h3v1h-3zM27 32h1v1h-1zM31 32h1v1h-1z"};
+  QR_PAGES.pager = {label: 'ポケベル 発信ページ', url: 'https://mediaculture2026.github.io/pager.html'};
+  QR_DATA.pager = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM20 0h2v1h-2zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM13 1h2v1h-2zM18 1h3v1h-3zM22 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM12 2h1v1h-1zM14 2h6v1h-6zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM12 3h1v1h-1zM16 3h2v1h-2zM21 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h2v1h-2zM12 4h2v1h-2zM16 4h1v1h-1zM19 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM11 5h3v1h-3zM15 5h1v1h-1zM18 5h1v1h-1zM20 5h2v1h-2zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h3v1h-3zM14 7h1v1h-1zM17 7h1v1h-1zM19 7h3v1h-3zM23 7h2v1h-2zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM10 8h3v1h-3zM15 8h1v1h-1zM17 8h2v1h-2zM21 8h9v1h-9zM32 8h1v1h-1zM1 9h2v1h-2zM4 9h2v1h-2zM8 9h1v1h-1zM12 9h1v1h-1zM14 9h4v1h-4zM20 9h4v1h-4zM25 9h1v1h-1zM29 9h3v1h-3zM0 10h8v1h-8zM9 10h3v1h-3zM13 10h4v1h-4zM18 10h1v1h-1zM20 10h1v1h-1zM23 10h3v1h-3zM29 10h1v1h-1zM31 10h1v1h-1zM0 11h2v1h-2zM3 11h3v1h-3zM7 11h2v1h-2zM11 11h3v1h-3zM15 11h1v1h-1zM20 11h1v1h-1zM22 11h2v1h-2zM25 11h1v1h-1zM31 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM5 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM22 12h3v1h-3zM26 12h1v1h-1zM28 12h2v1h-2zM31 12h1v1h-1zM1 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM18 13h3v1h-3zM23 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM1 14h4v1h-4zM6 14h1v1h-1zM8 14h2v1h-2zM13 14h1v1h-1zM15 14h1v1h-1zM20 14h2v1h-2zM23 14h1v1h-1zM25 14h2v1h-2zM30 14h2v1h-2zM0 15h6v1h-6zM9 15h1v1h-1zM12 15h6v1h-6zM21 15h1v1h-1zM23 15h4v1h-4zM28 15h2v1h-2zM1 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM9 16h5v1h-5zM16 16h7v1h-7zM24 16h1v1h-1zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM1 17h1v1h-1zM3 17h1v1h-1zM5 17h1v1h-1zM8 17h3v1h-3zM12 17h1v1h-1zM15 17h2v1h-2zM23 17h1v1h-1zM25 17h1v1h-1zM29 17h3v1h-3zM2 18h2v1h-2zM6 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM12 18h1v1h-1zM15 18h1v1h-1zM17 18h1v1h-1zM21 18h3v1h-3zM27 18h1v1h-1zM29 18h1v1h-1zM31 18h1v1h-1zM1 19h2v1h-2zM4 19h2v1h-2zM8 19h1v1h-1zM10 19h1v1h-1zM14 19h6v1h-6zM21 19h1v1h-1zM23 19h2v1h-2zM26 19h2v1h-2zM32 19h1v1h-1zM0 20h1v1h-1zM4 20h8v1h-8zM15 20h1v1h-1zM18 20h3v1h-3zM25 20h2v1h-2zM28 20h2v1h-2zM0 21h3v1h-3zM5 21h1v1h-1zM9 21h2v1h-2zM13 21h2v1h-2zM16 21h1v1h-1zM19 21h1v1h-1zM21 21h3v1h-3zM25 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM31 21h1v1h-1zM6 22h4v1h-4zM11 22h1v1h-1zM13 22h1v1h-1zM16 22h1v1h-1zM18 22h2v1h-2zM21 22h1v1h-1zM23 22h1v1h-1zM25 22h2v1h-2zM28 22h1v1h-1zM30 22h2v1h-2zM3 23h1v1h-1zM5 23h1v1h-1zM7 23h4v1h-4zM12 23h1v1h-1zM14 23h1v1h-1zM17 23h1v1h-1zM19 23h5v1h-5zM25 23h1v1h-1zM27 23h2v1h-2zM31 23h1v1h-1zM0 24h5v1h-5zM6 24h4v1h-4zM11 24h1v1h-1zM13 24h3v1h-3zM17 24h2v1h-2zM21 24h9v1h-9zM8 25h3v1h-3zM15 25h4v1h-4zM21 25h2v1h-2zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h2v1h-2zM0 26h7v1h-7zM8 26h4v1h-4zM13 26h3v1h-3zM18 26h1v1h-1zM20 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h2v1h-2zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h2v1h-2zM13 27h1v1h-1zM20 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h3v1h-3zM16 28h1v1h-1zM19 28h1v1h-1zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM9 29h1v1h-1zM11 29h3v1h-3zM17 29h4v1h-4zM23 29h2v1h-2zM26 29h3v1h-3zM30 29h2v1h-2zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM9 30h4v1h-4zM14 30h2v1h-2zM18 30h1v1h-1zM20 30h2v1h-2zM26 30h4v1h-4zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h2v1h-2zM13 31h1v1h-1zM15 31h3v1h-3zM21 31h6v1h-6zM0 32h7v1h-7zM8 32h2v1h-2zM12 32h3v1h-3zM17 32h1v1h-1zM19 32h1v1h-1zM21 32h5v1h-5zM32 32h1v1h-1z"};
+  var ql = document.getElementById('qrLinks');
+  if (ql){
+    [['day3','day3ページ'],['pager','ポケベル発信']].forEach(function(x){
+      var a = document.createElement('a');
+      a.href = '#'; a.setAttribute('data-qr', x[0]); a.textContent = x[1];
+      ql.insertBefore(a, ql.children[0]);
+    });
+  }
+
+  /* タイムテーブル行内のリンク */
+  var tt = document.getElementById('tt');
+  if (!tt) return;
+  if (!document.getElementById('segLinkCss')){
+    var css = document.createElement('style');
+    css.id = 'segLinkCss';
+    css.textContent = '.seg-links{margin-top:4px;font-size:12px;}' +
+      '.seg-links a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);margin-right:12px;}';
+    document.head.appendChild(css);
+  }
+  function L(h, t){ return '<a href="' + h + '" target="_blank">' + t + '</a>'; }
+  var VIEW = './pager-view-q7m2.html';
+  var LINKS3 = {
+    '前日の回収': [L('https://docs.google.com/spreadsheets/d/1RNTrF0JeUhBdA1LQsdD5EP13FnhrYAQsUE-kDb8Gcrs/edit', 'ミニッツ回答シート')],
+    '講義 自由ラジオとミニFM': [L('./day3.html', 'day3ページ'), L('./archive2022-day2.html', '参照資料')],
+    'ポケベル導入': [L(VIEW, '受信ページ(投影)'), L('./day3-2-k5n8.html', '2限ページ')],
+    '段階1 数字だけ': [L(VIEW, '受信ページ(投影)')],
+    '段階2 2タッチかな': [L(VIEW, '受信ページ(投影)')],
+    '段階3 輻輳と講評': [L(VIEW, '受信ページ(投影)'), L(VIEW + '?view=log', 'ログ表示')],
+    '最終課題の提示': [L('./day3-3-t2v6.html', '3限ページ')],
+    'グループワーク着手': [L('./day3-3-t2v6.html', '3限ページ')]
+  };
+  function decorate3(){
+    var trs = tt.querySelectorAll('tr');
+    for (var i = 0; i < trs.length; i++){
+      var tds = trs[i].children;
+      if (tds.length < 3) continue;
+      var lk = LINKS3[tds[1].textContent];
+      if (lk && !tds[2].querySelector('.seg-links')){
+        var div = document.createElement('div');
+        div.className = 'seg-links';
+        div.innerHTML = lk.join('');
+        tds[2].appendChild(div);
+      }
+    }
+  }
+  new MutationObserver(decorate3).observe(tt, {childList: true, subtree: true});
+  decorate3();
+})();
+
 </script>
 
 </div>
