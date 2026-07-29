@@ -182,7 +182,7 @@
   function reveal(st, persist){
     if (st.done) return;
     st.done = true;
-    fetch(st.src).then(function(r){ return r.text(); }).then(function(html){
+    fetch(st.src + '?nc=' + Date.now()).then(function(r){ return r.text(); }).then(function(html){
       var doc = new DOMParser().parseFromString(html, 'text/html');
       var wrap = doc.querySelector('.wrap');
       if (!wrap) return;
