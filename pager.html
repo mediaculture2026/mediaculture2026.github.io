@@ -134,12 +134,12 @@
   /* ベル番号・カナ切替コード・送信キーは符号表と同じJSONから読む。授業中に差し替えできる */
   var BELLS = ['1111','2222','3333','4444','5555'];
   var KANACODE = '*2*2';   /* これを押すとカナ入力に切り替わる */
-  var SENDCODE = '#';      /* 送信 */
+  var SENDCODE = '##';     /* 送信 */
 
   var AC = null, master = null, loop = null;
   var timers = [];
   var state = 'onhook';
-  var bell = '', msg = '', codeBuf = '', kanaMode = false;
+  var bell = '', msg = '', codeBuf = '', sendBuf = '', kanaMode = false;
   var stage = 1, lastTraffic = 0;
   var CID = (function(){
     try {
@@ -280,7 +280,7 @@
 
   function goOnhook(silentMsg){
     clearTimers(); stopLoop();
-    state = 'onhook'; bell = ''; msg = ''; codeBuf = ''; kanaMode = false;
+    state = 'onhook'; bell = ''; msg = ''; codeBuf = ''; sendBuf = ''; kanaMode = false;
     elDisp.className = 'digits';
     padEnabled(true);
     padWrap.classList.add('hide');
@@ -295,7 +295,7 @@
   hookBtn.addEventListener('click', function(){
     initAudio();
     clearTimers();
-    state = 'dial'; bell = ''; msg = ''; codeBuf = ''; kanaMode = false;
+    state = 'dial'; bell = ''; msg = ''; codeBuf = ''; sendBuf = ''; kanaMode = false;
     hookBtn.classList.add('hide');
     padWrap.classList.remove('hide');
     elBells.textContent = BELLS.join('   ');
@@ -324,8 +324,18 @@
 
     if (state === 'msg'){
       dtmf(k);
-      /* 送信 */
-      if (k === SENDCODE){ codeBuf = ''; doSend(); return; }
+      /* 送信コード(既定 ＃＃) */
+      if (k === '#' || sendBuf){
+        sendBuf += k;
+        if (SENDCODE.indexOf(sendBuf) === 0){
+          if (sendBuf === SENDCODE){ sendBuf = ''; codeBuf = ''; doSend(); return; }
+          elStat.innerHTML = '<b>' + label(sendBuf) + '</b>';
+          return;
+        }
+        sendBuf = '';
+        render();
+        return;
+      }
       /* カナ切替コード(既定 ※2※2)。※で始まり、途中で外れたらやり直し */
       if (k === '*' || codeBuf){
         codeBuf += k;
