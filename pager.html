@@ -281,6 +281,7 @@
   });
 
   downBtn.addEventListener('click', function(){ goOnhook(); });
+  sendBtn.addEventListener('click', function(){ doSend(); });
 
   document.getElementById('pad').addEventListener('click', function(ev){
     var b = ev.target.closest('button[data-k]');
