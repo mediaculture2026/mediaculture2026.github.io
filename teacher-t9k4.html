@@ -1219,6 +1219,36 @@ function renderDash(){
   deco3rev();
 })();
 
+
+/* ---- 2026-07-30 追記3 ----
+   ポケベルの段階操作を受信ページから教員ページへ移した。
+   受信ページは投影するので、操作ボタンを置かない。 */
+(function(){
+  if (document.getElementById('pgS1')) return;
+  var anchor = document.getElementById('d3s2Btn');
+  if (!anchor) return;
+  var PT = 'mczemi26-pager-r7t3';
+  var row = document.createElement('div');
+  row.className = 'controls';
+  row.innerHTML = '<span class="offset">ポケベル:</span>' +
+    '<button id="pgS1">段階1 符号表を伏せる</button>' +
+    '<button id="pgS2">段階2 符号表を配る</button>' +
+    '<button id="pgS3">段階3 輻輳オン</button>' +
+    '<span id="pgStat" class="offset"></span>';
+  anchor.parentNode.parentNode.insertBefore(row, anchor.parentNode.nextSibling);
+  var st = document.getElementById('pgStat');
+  [['pgS1', 1, '段階1。符号表を伏せました'],
+   ['pgS2', 2, '段階2。学生のページに符号表が出ました'],
+   ['pgS3', 3, '段階3。輻輳オン(数秒内の重なりを話中で弾く)']].forEach(function(x){
+    document.getElementById(x[0]).addEventListener('click', function(){
+      st.textContent = '送信中…';
+      fetch('https://ntfy.sh/' + PT, { method:'POST', body: JSON.stringify({ type:'ctrl', stage:x[1] }) })
+        .then(function(r){ if (!r.ok) throw new Error(r.status); st.textContent = x[2]; })
+        .catch(function(e){ st.textContent = '送信失敗(' + e.message + ')'; });
+    });
+  });
+})();
+
 </script>
 
 </div>
