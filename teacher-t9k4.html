@@ -970,6 +970,173 @@ document.addEventListener('keydown', function(e){
   decorate3();
 })();
 
+
+/* ---- 2026-07-29 深夜 追記 ----
+   1) 第3日の公開ボタンを日付に関係なく出す
+   2) 出席・提出の表にミニッツペーパー(第2日・第3日)の列を足す
+   3) 第3日ミニッツペーパー(フォーム④)のリンクと、締めのコマ
+*/
+(function(){
+  /* --- 第3日の公開ボタン(前日でも押せるように日付ゲートなし) --- */
+  if (!document.getElementById('d3s2Btn')){
+    var ref = document.getElementById('revealBtn');
+    if (ref){
+      var row = document.createElement('div');
+      row.className = 'controls';
+      row.innerHTML = '<span class="offset">第3日:</span>' +
+        '<button id="d3s2Btn">2限を公開(ポケベル)</button>' +
+        '<button id="d3s3Btn">3限を公開(MABATAKI+最終課題)</button>' +
+        '<span id="d3Status" class="offset"></span>';
+      ref.parentNode.parentNode.insertBefore(row, ref.parentNode.nextSibling);
+      var st = document.getElementById('d3Status');
+      var wire = function(id, msg, key, label){
+        var b = document.getElementById(id);
+        if (localStorage.getItem(key) === '1'){ b.textContent = label + '(送信済み・再送可)'; }
+        b.addEventListener('click', function(){
+          b.disabled = true; st.textContent = '送信中…';
+          fetch('https://ntfy.sh/' + TOPIC, { method:'POST', body: msg })
+            .then(function(r){
+              if (!r.ok) throw new Error(r.status);
+              st.textContent = label + 'を公開しました(day3ページに展開されます)';
+              localStorage.setItem(key, '1');
+              b.textContent = label + 'を再送する'; b.disabled = false;
+            })
+            .catch(function(e){
+              st.textContent = '送信失敗(' + e.message + ')。隠しページのQR共有に切り替えを';
+              b.disabled = false;
+            });
+        });
+      };
+      wire('d3s2Btn', 'd3open2', 'mc_d3s2_sent', '2限');
+      wire('d3s3Btn', 'd3open3', 'mc_d3s3_sent', '3限');
+    }
+  }
+
+  /* --- 第3日ミニッツペーパーのリンク --- */
+  var links = document.querySelector('.links');
+  if (links && !links.querySelector('a[data-mn]')){
+    [
+      ['https://forms.gle/bB9JC4m4wx5MsuNh9', 'ミニッツ(第3日)フォーム'],
+      ['https://docs.google.com/forms/d/1zmcWX4DK1aMzsB-rfoAEdMq6AFlHch191Hgtny4SXKo/edit', 'ミニッツ(第3日)回答を見る'],
+      ['https://docs.google.com/spreadsheets/d/1RNTrF0JeUhBdA1LQsdD5EP13FnhrYAQsUE-kDb8Gcrs/edit', 'ミニッツ(第2日)回答シート']
+    ].forEach(function(x){
+      var a = document.createElement('a');
+      a.href = x[0]; a.target = '_blank'; a.textContent = x[1];
+      a.setAttribute('data-mn', '1');
+      links.appendChild(a);
+    });
+  }
+
+  /* --- 第3日のタイムテーブルに締めのコマを足す --- */
+  var last = SCHEDULE[SCHEDULE.length - 1];
+  if (last && last.label === 'グループワーク着手'){
+    last.e = '14:50';
+    SCHEDULE.push({
+      s:'14:50', e:'15:10', label:'ミニッツペーパー・締め',
+      note:'フォーム④(day3ページの一番下)。第4日予告: 実演と講評。持ち込みが要るものを確認させる'
+    });
+    var tt = document.getElementById('tt');
+    if (tt){
+      var deco = function(){
+        var trs = tt.querySelectorAll('tr');
+        for (var i = 0; i < trs.length; i++){
+          var tds = trs[i].children;
+          if (tds.length < 3) continue;
+          if (tds[1].textContent === 'ミニッツペーパー・締め' && !tds[2].querySelector('.seg-links')){
+            var div = document.createElement('div');
+            div.className = 'seg-links';
+            div.innerHTML = '<a href="./day3-3-t2v6.html" target="_blank">3限ページ</a>' +
+              '<a href="https://docs.google.com/forms/d/1zmcWX4DK1aMzsB-rfoAEdMq6AFlHch191Hgtny4SXKo/edit" target="_blank">回答を見る</a>';
+            tds[2].appendChild(div);
+          }
+        }
+      };
+      new MutationObserver(deco).observe(tt, {childList:true, subtree:true});
+      deco();
+    }
+  }
+
+  /* --- 出席表のヘッダに2列足す --- */
+  var hr = document.querySelector('table.att thead tr');
+  if (hr && hr.children.length === 7){
+    ['第2日ミニッツ', '第3日ミニッツ'].forEach(function(t){
+      var th = document.createElement('th'); th.textContent = t; hr.appendChild(th);
+    });
+  }
+
+  /* --- CSVボタンの中身を差し替える(既存のリスナーを外すため複製する) --- */
+  var oldBtn = document.getElementById('csvBtn');
+  if (oldBtn){
+    var nb = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(nb, oldBtn);
+    nb.addEventListener('click', function(){
+      if (!roster) return;
+      var head = '氏名,カナ,学年,学籍番号,第1日,第2日,第3日,第4日,提出①,提出②,第2日ミニッツ,第3日ミニッツ\n';
+      var lines = roster.map(function(s){
+        var a = att[key(s)] || {};
+        return [s.name, s.kana, s.grade, s.sid,
+          a.d1 ? '○' : '', a.d2 ? '○' : '', a.d3 ? '○' : '', a.d4 ? '○' : '',
+          subFor(subs.f1, s) ? '○' : '', subFor(subs.f2, s) ? '○' : '',
+          subFor(subs.f3, s) ? '○' : '', subFor(subs.f4, s) ? '○' : ''].join(',');
+      }).join('\n');
+      var blob = new Blob(['﻿' + head + lines], {type: 'text/csv'});
+      var a2 = document.createElement('a');
+      a2.href = URL.createObjectURL(blob);
+      a2.download = '出席簿_メディア文化ゼミナール.csv';
+      a2.click();
+    });
+  }
+})();
+
+/* 出席・提出の表を描き直す。提出①②に加えて、第2日・第3日のミニッツペーパーも出す */
+function renderDash(){
+  var has = roster && roster.length;
+  document.getElementById('rosterSetup').style.display = has ? 'none' : 'block';
+  document.getElementById('attWrap').style.display = has ? 'block' : 'none';
+  if (!has){ document.getElementById('groupsView').innerHTML = ''; return; }
+
+  var FORMS = ['f1', 'f2', 'f3', 'f4'];
+
+  document.getElementById('attBody').innerHTML = roster.map(function(s){
+    var a = att[key(s)] || {};
+    var days = ['d1','d2','d3','d4'].map(function(d){
+      return '<td class="cell ' + (a[d] ? 'onn' : 'off') + '" data-k="' + key(s) + '" data-d="' + d + '">' + (a[d] ? '✅' : '・') + '</td>';
+    }).join('');
+    var cells = FORMS.map(function(f){
+      var x = subFor(subs[f], s);
+      return '<td class="sub ' + (x ? 'yes' : 'no') + '">' + (x ? '✓ ' + x.t : '—') + '</td>';
+    }).join('');
+    return '<tr><td class="nm">' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span>' +
+      (s.kana ? '<span class="kn">' + s.kana + '</span>' : '') + '</td>' + days + cells + '</tr>';
+  }).join('');
+
+  var totals = ['d1','d2','d3','d4'].map(function(d){
+    return roster.filter(function(s){ return (att[key(s)] || {})[d]; }).length;
+  });
+  var counts = FORMS.map(function(f){
+    return roster.filter(function(s){ return subFor(subs[f], s); }).length;
+  });
+  document.getElementById('attFoot').innerHTML =
+    '<td class="muted">計 ' + roster.length + '名</td>' +
+    totals.concat(counts).map(function(t){
+      return '<td class="muted" style="text-align:center">' + t + '</td>';
+    }).join('');
+
+  var LABEL = {f1:'提出①', f2:'提出②', f3:'第2日ミニッツ', f4:'第3日ミニッツ'};
+  var un = [];
+  FORMS.forEach(function(f){
+    (subs[f] || []).forEach(function(x){
+      if (!roster.some(function(s){ return norm(s.name) === norm(x.n); })){
+        un.push(LABEL[f] + ':「' + x.n + '」');
+      }
+    });
+  });
+  document.getElementById('unmatched').textContent = un.length
+    ? '名簿と一致しない提出: ' + un.join(' / ') + '(表記ゆれの可能性)' : '';
+
+  renderGroups();
+}
+
 </script>
 
 </div>
