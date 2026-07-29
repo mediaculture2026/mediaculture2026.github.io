@@ -123,8 +123,8 @@
   <span class="badge hide" id="unreadBadge">未読 <b id="unreadTop">0</b></span>
   <select id="meSel" class="hide"></select>
   <span class="grow"></span>
-  <button id="s1">段階1 数字</button>
-  <button id="s2">段階2 かな</button>
+  <button id="s1">段階1 数字だけ</button>
+  <button id="s2">段階2 符号表を配る</button>
   <button id="s3">段階3 輻輳</button>
   <button id="qrBtn">送信ページQR</button>
   <button id="viewBtn">表示</button>
@@ -318,8 +318,8 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
     if (!m){ dg.textContent = ''; kn.textContent = ''; tm.textContent = ''; nt.textContent = '着信なし'; return; }
     tm.textContent = hhmm(m.at);
     dg.textContent = m.digits;
-    nt.textContent = (idx + 1) + ' / ' + mine.length + '件  ' + m.digits.length + '桁';
-    var kana = (stage >= 2) ? decode(m.digits) : '';
+    nt.textContent = (idx + 1) + ' / ' + mine.length + '件  ' + m.digits.length + '桁  ' + (m.mode === 'kana' ? 'カナ' : '数字');
+    var kana = (m.mode === 'kana') ? decode(m.digits) : '';
     if (!animate || !kana){ kn.textContent = kana; return; }
     kn.textContent = '';
     wallTimer[b] = setTimeout(function(){
@@ -349,8 +349,8 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
     el('mFrom').textContent = ME.split('').join(' ');
     el('mTime').textContent = hhmm(m.at) + '  ( ' + (idx + 1) + ' / ' + mine.length + ' )';
     el('lDigits').textContent = m.digits;
-    el('lNote').textContent = m.digits.length + ' 桁';
-    var kana = (stage >= 2) ? decode(m.digits) : '';
+    el('lNote').textContent = m.digits.length + ' 桁  ' + (m.mode === 'kana' ? 'カナ' : '数字');
+    var kana = (m.mode === 'kana') ? decode(m.digits) : '';
     if (!animate || !kana){ el('lKana').textContent = kana; return; }
     el('lKana').textContent = '';
     resolveTimer = setTimeout(function(){
@@ -366,7 +366,7 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
   function showLog(){
     var box = el('logList');
     box.innerHTML = list.map(function(m){
-      var kana = (stage >= 2) ? decode(m.digits) : '';
+      var kana = (m.mode === 'kana') ? decode(m.digits) : '';
       return '<div class="item"><span class="no">' + m.to + '</span>' +
              '<span class="tm">' + hhmm(m.at) + '</span>' +
              '<span class="dg">' + m.digits + '</span>' +
@@ -438,7 +438,7 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
         if (d.event !== 'message') return;
         var m = JSON.parse(d.message);
         if (m.type !== 'msg') return;
-        arrive({ to: String(m.to || BELLS[0]), digits: String(m.digits || ''), at: Date.now() });
+        arrive({ to: String(m.to || BELLS[0]), digits: String(m.digits || ''), mode: (m.mode === 'kana' ? 'kana' : 'num'), at: Date.now() });
       } catch(e){}
     };
   } catch(e){}
@@ -461,10 +461,11 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
     redraw();
   });
   el('csvBtn').addEventListener('click', function(){
-    var rows = [['受信時刻','宛先ベル番号','数字列','解読']];
+    var rows = [['受信時刻','宛先ベル番号','入力','数字列','解読']];
     list.forEach(function(m){
       var d = new Date(m.at);
-      rows.push([d.toLocaleString('ja-JP'), m.to, m.digits, decode(m.digits)]);
+      rows.push([d.toLocaleString('ja-JP'), m.to, (m.mode === 'kana' ? 'カナ' : '数字'), m.digits,
+                 (m.mode === 'kana' ? decode(m.digits) : '')]);
     });
     var csv = '\uFEFF' + rows.map(function(r){
       return r.map(function(c){ return '"' + String(c).replace(/"/g,'""') + '"'; }).join(',');
