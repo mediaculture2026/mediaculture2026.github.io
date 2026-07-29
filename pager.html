@@ -53,6 +53,12 @@
   }
   .guide strong{color:var(--accent);font-weight:600;}
 
+  .bells{
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+    font-size:14px;letter-spacing:.16em;color:var(--sub);
+    text-align:center;margin:0 0 12px;
+  }
+
   .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
   .pad button{
     font-family:inherit;
@@ -101,15 +107,15 @@
 <button class="act hook" id="hookBtn">受話器を上げる</button>
 
 <div id="padWrap" class="hide">
+  <p class="bells hide" id="bellList"></p>
   <div class="pad" id="pad">
     <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
     <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
     <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
-    <button data-k="*">＊</button><button data-k="0">0</button><button data-k="#">＃<span class="sub">そうしん</span></button>
+    <button data-k="*">＊<span class="sub">こめ</span></button><button data-k="0">0</button><button data-k="#">＃</button>
   </div>
   <div class="row">
     <button class="ghost" id="downBtn">受話器を置く</button>
-    <button class="act" id="sendBtn" disabled>送信</button>
   </div>
 </div>
 
@@ -125,10 +131,14 @@
   var TOPIC = 'mczemi26-pager-r7t3';
   var MAX = 20;
 
+  /* ベル番号と送信コードは符号表と同じJSONから読む。授業中に差し替えできる */
+  var BELLS = ['1111','2222','3333','4444','5555'];
+  var SENDCODE = '*2*2';
+
   var AC = null, master = null, loop = null;
   var timers = [];
   var state = 'onhook';
-  var bell = '', msg = '';
+  var bell = '', msg = '', confirmBuf = '';
   var stage = 1, lastTraffic = 0;
   var CID = (function(){
     try {
@@ -137,17 +147,24 @@
       return v;
     } catch(e){ return String(Math.floor(Math.random()*1e9)); }
   })();
-  var savedBell = '';
-  try { savedBell = localStorage.getItem('mc_pager_bell') || ''; } catch(e){}
 
   var elStat = document.getElementById('stat');
   var elDisp = document.getElementById('disp');
   var elCount = document.getElementById('count');
   var elGuide = document.getElementById('guide');
+  var elBells = document.getElementById('bellList');
   var hookBtn = document.getElementById('hookBtn');
   var padWrap = document.getElementById('padWrap');
-  var sendBtn = document.getElementById('sendBtn');
   var downBtn = document.getElementById('downBtn');
+
+  fetch('./pager-table.json?nc=' + Date.now()).then(function(r){ return r.json(); }).then(function(j){
+    if (j.bells && j.bells.length) BELLS = j.bells.map(String);
+    if (j.send) SENDCODE = String(j.send);
+  }).catch(function(){});
+
+  function sendCodeLabel(){
+    return SENDCODE.split('').map(function(c){ return c === '*' ? '※' : (c === '#' ? '＃' : c); }).join('');
+  }
 
   /* ---------- 音 ---------- */
   function initAudio(){
@@ -254,74 +271,102 @@
 
   function setGuide(html){ elGuide.innerHTML = html; }
 
+  function padEnabled(on){
+    var bs = document.getElementById('pad').querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++){ bs[i].disabled = !on; }
+  }
+
   function goOnhook(silentMsg){
     clearTimers(); stopLoop();
-    state = 'onhook'; bell = ''; msg = '';
+    state = 'onhook'; bell = ''; msg = ''; confirmBuf = '';
     elDisp.className = 'digits';
+    padEnabled(true);
     padWrap.classList.add('hide');
+    elBells.classList.add('hide');
     hookBtn.classList.remove('hide');
     hookBtn.disabled = false;
-    sendBtn.disabled = true;
+    hookBtn.textContent = '受話器を上げる';
     render();
-    setGuide(silentMsg || ('下のボタンで受話器を上げてください。' +
-      (savedBell ? '<br>あなたのベル番号 <strong>' + savedBell + '</strong>' : '')));
+    setGuide(silentMsg || '下のボタンで受話器を上げてください。');
   }
 
   hookBtn.addEventListener('click', function(){
     initAudio();
     clearTimers();
-    state = 'dial'; bell = ''; msg = '';
+    state = 'dial'; bell = ''; msg = ''; confirmBuf = '';
     hookBtn.classList.add('hide');
     padWrap.classList.remove('hide');
-    sendBtn.disabled = true;
+    elBells.textContent = BELLS.join('   ');
+    elBells.classList.remove('hide');
     dialTone();
     render();
-    setGuide('あなたのベル番号(4桁)を押してください。' +
-      (savedBell ? '<br>前回は <strong>' + savedBell + '</strong> でした。' : '<br>好きな4桁を決めてください。名前は使いません。'));
+    setGuide('<strong>相手のベル番号(4桁)</strong>を押してください。');
   });
 
   downBtn.addEventListener('click', function(){ goOnhook(); });
-  sendBtn.addEventListener('click', function(){ doSend(); });
 
   document.getElementById('pad').addEventListener('click', function(ev){
     var b = ev.target.closest('button[data-k]');
     if (!b) return;
     var k = b.getAttribute('data-k');
+
     if (state === 'dial'){
       if (k === '*' || k === '#') return;
       if (bell.length >= 4) return;
       dtmf(k);
       bell += k;
       render();
-      if (bell.length === 4){
-        try { localStorage.setItem('mc_pager_bell', bell); } catch(e){}
-        savedBell = bell;
-        later(startCall, 400);
-      }
-    } else if (state === 'msg'){
-      if (k === '#'){ doSend(); return; }
-      if (k === '*') return;
-      if (msg.length >= MAX) return;
+      if (bell.length === 4){ later(startCall, 400); }
+      return;
+    }
+
+    if (state === 'msg'){
       dtmf(k);
+      /* 送信コード(既定 ※2※2)の受付。※で始まり、途中で外れたらやり直し */
+      if (k === '*' || confirmBuf){
+        confirmBuf += k;
+        if (SENDCODE.indexOf(confirmBuf) === 0){
+          if (confirmBuf === SENDCODE){ confirmBuf = ''; doSend(); return; }
+          elStat.innerHTML = '<b>' + sendCodeLabel().slice(0, confirmBuf.length) + '</b>';
+          return;
+        }
+        confirmBuf = '';
+        render();
+        return;
+      }
+      if (k === '#') return;
+      if (msg.length >= MAX) return;
       msg += k;
-      sendBtn.disabled = (msg.length === 0);
       render();
     }
   });
 
   function startCall(){
     state = 'ring';
-    elStat.textContent = 'プルルル…';
     elCount.textContent = '';
+
+    /* 使われていない番号 */
+    if (BELLS.indexOf(bell) === -1){
+      stopLoop();
+      elStat.textContent = '(案内)';
+      setGuide('<strong>おかけになった番号は、現在使われておりません。</strong><br>番号をお確かめのうえ、おかけ直しください。');
+      later(function(){ busyTone(); }, 2600);
+      later(function(){ goOnhook('切れました。かけ直してください。'); }, 6000);
+      return;
+    }
+
+    elStat.textContent = 'プルルル…';
     setGuide('呼び出しています。');
+
     /* 輻輳。数秒内に他の誰かが送っていたら話中で弾く */
     if (stage >= 3 && (Date.now() - lastTraffic) < 7000){
       busyTone();
       elStat.textContent = 'お話し中';
       setGuide('<strong>お話し中です。</strong>しばらくしてからおかけ直しください。');
-    later(function(){ goOnhook('切れました。かけ直してください。'); }, 4200);
+      later(function(){ goOnhook('切れました。かけ直してください。'); }, 4200);
       return;
     }
+
     ringback();
     later(function(){
       stopLoop();
@@ -332,7 +377,8 @@
         beep(950, 0.45, 0, 0.5);   /* ピー */
         later(function(){
           state = 'msg';
-          setGuide('数字を押してください。<strong>ここには数字しか出ません。</strong><br>読めるかたちになるのは大画面のほうです。');
+          setGuide('数字を押してください。<strong>ここには数字しか出ません。</strong><br>打ち終わったら <strong>' +
+                   sendCodeLabel() + '</strong> で送信です。');
           render();
         }, 500);
       }, 1600);
@@ -340,31 +386,33 @@
   }
 
   function doSend(){
-    if (state !== 'msg' || msg.length === 0) return;
+    if (state !== 'msg' || msg.length === 0){
+      elStat.textContent = 'メッセージがありません';
+      later(render, 1200);
+      return;
+    }
     var digits = msg;
+    var to = bell;
     state = 'sending';
-    sendBtn.disabled = true;
     elStat.textContent = '送信中…';
     setGuide('送信しています。');
-    var body = JSON.stringify({ type:'msg', from: bell, cid: CID, digits: digits, ts: Date.now() });
+    var body = JSON.stringify({ type:'msg', to: to, cid: CID, digits: digits, ts: Date.now() });
     fetch('https://ntfy.sh/' + TOPIC, { method:'POST', body: body })
       .then(function(r){ if (!r.ok) throw new Error(r.status); return r; })
       .then(function(){
         beep(800, 0.12, 0, 0.5); beep(800, 0.12, 0.2, 0.5);
         state = 'done';
         elStat.textContent = '送信しました';
+        elDisp.className = 'digits';
         elDisp.textContent = digits;
-        elCount.textContent = digits.length + ' 桁';
-        setGuide('送信しました。<strong>大画面を見てください。</strong><br>訂正はできません。');
-        padWrap.classList.add('hide');
-        hookBtn.classList.remove('hide');
-        hookBtn.textContent = 'もう一度かける';
+        elCount.textContent = to + ' あて / ' + digits.length + ' 桁';
+        setGuide('メッセージをお預かりしました。<strong>受話器をお切りください。</strong><br>訂正はできません。');
+        padEnabled(false);
       })
       .catch(function(e){
         state = 'msg';
-        sendBtn.disabled = false;
         elStat.textContent = '送信できませんでした';
-        setGuide('<strong>つながりませんでした(' + e.message + ')。</strong>もう一度「送信」を押してください。');
+        setGuide('<strong>つながりませんでした(' + e.message + ')。</strong>もう一度 ' + sendCodeLabel() + ' を押してください。');
       });
   }
 
