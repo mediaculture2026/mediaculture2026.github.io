@@ -294,11 +294,14 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
     window.scrollTo(0, document.body.scrollHeight);
   }
 
-  function redraw(){
+  function counters(){
     el('total').textContent = list.length;
     el('unread').textContent = unread;
     el('unreadTop').textContent = unread;
     el('nextBtn').disabled = (unread === 0);
+  }
+  function redraw(){
+    counters();
     if (view === 'pager') showPager(shownIdx, false); else showLog();
   }
 
@@ -311,7 +314,7 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
     if (unread === 0) return;
     shownIdx = list.length - unread;
     unread--;
-    redraw();
+    counters();
     showPager(shownIdx, true);
   }
 
@@ -319,16 +322,8 @@ var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM2
   function arrive(m){
     setTimeout(function(){
       list.push(m); save(); ring();
-      if (view === 'pager'){
-        if (unread === 0){
-          shownIdx = list.length - 1;
-          el('total').textContent = list.length;
-          showPager(shownIdx, true);
-        } else {
-          unread++;
-        }
-      }
-      redraw();
+      unread++;
+      if (view === 'pager') counters(); else redraw();
     }, DELAY);
   }
 
