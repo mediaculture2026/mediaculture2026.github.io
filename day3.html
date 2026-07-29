@@ -191,28 +191,31 @@
       document.getElementById(st.slot).innerHTML = wrap.innerHTML;
       renumber();
       if (persist) { try { localStorage.setItem(st.key, '1'); } catch(e){} }
-      if (tableWanted) showTable();
+      applyStage();
     }).catch(function(){ st.done = false; });
   }
 
-  /* 符号表は段階2になってから出す。数字だけの段階で見えると語呂合わせを考えなくなる */
-  var tableWanted = false, tableDone = false;
-  function showTable(){
-    if (tableDone) return;
+  /* 符号表は段階2になってから出す。数字だけの段階で見えると語呂合わせを考えなくなる。
+     いちばん新しい段階だけを見るので、段階1に戻せば表もまた隠れる */
+  var curStage = 1, tableFilled = false;
+  function applyStage(){
     var box = document.getElementById('codeTable');
-    if (!box) { tableWanted = true; return; }
-    tableDone = true;
+    if (!box) return;
+    if (curStage < 2){ box.style.display = 'none'; return; }
     box.style.display = '';
+    if (tableFilled) return;
+    tableFilled = true;
     fetch('./pager-table.json?nc=' + Date.now()).then(function(r){ return r.json(); }).then(function(j){
       var g = box.querySelector('.codegrid');
       g.innerHTML = (j.rows || []).map(function(r){
         return '<span><b>' + r[0] + '</b>' + r[1] + '</span>';
       }).join('');
-    }).catch(function(){});
+    }).catch(function(){ tableFilled = false; });
   }
 
   if (location.search.indexOf('full=1') !== -1) {
-    reveal(STAGES.s2, false); reveal(STAGES.s3, false); tableWanted = true;
+    curStage = 2;
+    reveal(STAGES.s2, false); reveal(STAGES.s3, false);
   }
   try {
     if (localStorage.getItem('mc_d3_s2') === '1') { reveal(STAGES.s2, true); }
@@ -239,7 +242,7 @@
         var d = JSON.parse(ev.data);
         if (d.event !== 'message') return;
         var m = JSON.parse(d.message);
-        if (m.type === 'ctrl' && m.stage >= 2){ tableWanted = true; showTable(); }
+        if (m.type === 'ctrl' && m.stage){ curStage = m.stage; applyStage(); }
       } catch(e){}
     };
   } catch(e){}
