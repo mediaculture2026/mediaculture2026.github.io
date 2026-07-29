@@ -213,7 +213,8 @@
     }).catch(function(){ tableFilled = false; });
   }
 
-  if (location.search.indexOf('full=1') !== -1) {
+  var FULL = location.search.indexOf('full=1') !== -1;
+  if (FULL) {
     curStage = 2;
     reveal(STAGES.s2, false); reveal(STAGES.s3, false);
   }
@@ -242,6 +243,7 @@
         var d = JSON.parse(ev.data);
         if (d.event !== 'message') return;
         var m = JSON.parse(d.message);
+        if (FULL) return;   /* 投影用プレビューでは段階の信号を拾わない(符号表は常に出す) */
         if (m.type === 'ctrl' && m.stage){ curStage = m.stage; applyStage(); }
       } catch(e){}
     };
