@@ -796,6 +796,52 @@ document.addEventListener('keydown', function(e){
   decorate();
 })();
 
+
+/* ---- 3限の進行差し替え(7/29昼。前倒し対応) ---- */
+(function(){
+  var d = new Date();
+  if (!(d.getMonth() === 6 && d.getDate() === 29)) return;
+  var keep = [];
+  for (var i = 0; i < SCHEDULE.length; i++){
+    var l = SCHEDULE[i].label;
+    if (l === 'Site-specific Musician' || l === '議論' || l === 'ミニッツペーパー・締め') continue;
+    keep.push(SCHEDULE[i]);
+  }
+  SCHEDULE.length = 0;
+  keep.forEach(function(x){ SCHEDULE.push(x); });
+  [
+    {s:'13:25', e:'13:40', label:'ミニッツ下書き(個人)', note:'まだ提出しない。問い:今日の題材のどこに人間の「余地」を見たか'},
+    {s:'13:40', e:'14:00', label:'小グループ交換', note:'3〜4人。「自分と違う場所に余地を見た人」を1人見つけてもらう'},
+    {s:'14:00', e:'14:45', label:'全体議論', note:'回答シートを投影して読み比べ。どの題材を選んだかの分布も材料になる'},
+    {s:'14:45', e:'15:00', label:'加筆して提出', note:'「議論の前と後で自分の見方がどう動いたか」を一行足して提出'},
+    {s:'15:00', e:'15:10', label:'締め・第3日予告', note:'スマホ持参・iOSはマナースイッチ解除。「明日は使う側から作る側に回る」とだけ。書く→晒す→議論→書き直す、の流れ自体が「介在する余地」の実演だったと一言'}
+  ].forEach(function(x){ SCHEDULE.push(x); });
+  var tt = document.getElementById('tt');
+  function L(href, label){ return '<a href="' + href + '" target="_blank">' + label + '</a>'; }
+  var SHEET = 'https://docs.google.com/spreadsheets/d/1RNTrF0JeUhBdA1LQsdD5EP13FnhrYAQsUE-kDb8Gcrs/edit';
+  var LINKS2 = {
+    'ミニッツ下書き(個人)': [L('./day2-3-w8r5.html', '3限ページ(問いとフォーム)')],
+    '全体議論': [L(SHEET, 'ミニッツ回答シート(投影)')],
+    '加筆して提出': [L('./day2-3-w8r5.html', '3限ページ'), L(SHEET, '回答シート')]
+  };
+  function decorate2(){
+    if (!tt) return;
+    var trs = tt.querySelectorAll('tr');
+    for (var i = 0; i < trs.length; i++){
+      var tds = trs[i].children;
+      if (tds.length < 3) continue;
+      var links = LINKS2[tds[1].textContent];
+      if (links && !tds[2].querySelector('.seg-links')){
+        var div = document.createElement('div');
+        div.className = 'seg-links';
+        div.innerHTML = links.join('');
+        tds[2].appendChild(div);
+      }
+    }
+  }
+  if (tt){ new MutationObserver(decorate2).observe(tt, {childList: true, subtree: true}); decorate2(); }
+})();
+
 </script>
 
 </div>
