@@ -1137,6 +1137,88 @@ function renderDash(){
   renderGroups();
 }
 
+
+/* ---- 2026-07-30 追記 ----
+   第3日3限の組み替え。MABATAKI(光/モールス)とSound Modem(音)を対にする。
+   最終課題は予告とグループ分けだけにして、本体は第4日へ送る。
+   参照資料のリンクを第3日用のページに差し替える。 */
+(function(){
+  var d = new Date();
+  if (!(d.getMonth() === 6 && d.getDate() === 30)) return;
+  if (window.__mc3rev) return;
+  window.__mc3rev = 1;
+
+  var REF3 = 'https://www.telephonovision.tel/telephonovisionmediacalture2024kyotodemachiyanagihasakyoku/mcal2026mcal2026';
+
+  /* 13:25以降を組み替える */
+  for (var i = SCHEDULE.length - 1; i >= 0; i--){
+    if (SCHEDULE[i].s >= '13:25') SCHEDULE.splice(i, 1);
+  }
+  [
+    {s:'13:25', e:'13:55', label:'MABATAKI SIGNAL(光)',
+     note:'型式TPV-03。符号はモールス。ポケベルの2タッチ表と違い、勝手に決めた表ではない。短点と長点は電信機がオンオフしか作れなかったことの帰結。「符号は運び手の都合から生まれる」まで言う。送信画面を直視しない注意を先に'},
+    {s:'13:55', e:'14:25', label:'Sound Modem(音)',
+     note:'同じCHに合わせて音で送る。ここで午前の答え合わせ——ポケベルはntfy経由で教室の外を通っていた。こちらはサーバーなし、届く範囲は音の範囲だけ。班ごとにCHを分ける→壊し方を探す(離れる/遮る/雑音)'},
+    {s:'14:25', e:'14:30', label:'TELEPHOTONE(紹介)',
+     note:'型式TPV-04。MABATAKIの派生。運ぶ中身が楽譜になると符号の設計も変わる。触るのは各自に任せる'},
+    {s:'14:30', e:'14:50', label:'最終課題の予告とグループ分け',
+     note:'テーマだけ出す。評価軸や足がかりは明日のページで。今日はグループを決めて、各自ひとつアイデアを持ってくる宿題まで'},
+    {s:'14:50', e:'15:10', label:'ミニッツペーパー・締め',
+     note:'フォーム④(day3ページの一番下)。第4日予告: 前史(腕木・旗振り)→設計→実演→講評。持ち込みが要るものを確認させる'}
+  ].forEach(function(x){ SCHEDULE.push(x); });
+
+  /* 公開ボタンの文言 */
+  var b3 = document.getElementById('d3s3Btn');
+  if (b3 && b3.textContent.indexOf('再送') === -1){ b3.textContent = '3限を公開(MABATAKI/modem/予告)'; }
+
+  /* リンク欄に道具3つと参照資料 */
+  var links = document.querySelector('.links');
+  if (links && !links.querySelector('a[data-tool]')){
+    [
+      ['https://mabatakisignal.github.io/', 'MABATAKI SIGNAL'],
+      ['https://tpv-modem.github.io/', 'Sound Modem'],
+      ['https://telephotone.github.io/', 'TELEPHOTONE'],
+      [REF3, '参照資料(第3日)']
+    ].forEach(function(x){
+      var a = document.createElement('a');
+      a.href = x[0]; a.target = '_blank'; a.textContent = x[1];
+      a.setAttribute('data-tool', '1');
+      links.appendChild(a);
+    });
+  }
+
+  /* タイムテーブル行内のリンク */
+  var tt = document.getElementById('tt');
+  if (!tt) return;
+  function L(h, t){ return '<a href="' + h + '" target="_blank">' + t + '</a>'; }
+  var MAP = {
+    'MABATAKI SIGNAL(光)': L('https://mabatakisignal.github.io/', 'MABATAKI') + L('./day3-3-t2v6.html', '3限ページ'),
+    'Sound Modem(音)': L('https://tpv-modem.github.io/', 'Sound Modem') + L('./day3-3-t2v6.html', '3限ページ'),
+    'TELEPHOTONE(紹介)': L('https://telephotone.github.io/', 'TELEPHOTONE'),
+    '最終課題の予告とグループ分け': L('./day3-3-t2v6.html', '3限ページ')
+  };
+  function deco3rev(){
+    var trs = tt.querySelectorAll('tr');
+    for (var i = 0; i < trs.length; i++){
+      var tds = trs[i].children;
+      if (tds.length < 3) continue;
+      var lab = tds[1].textContent;
+      if (MAP[lab] && !tds[2].querySelector('.seg-links')){
+        var div = document.createElement('div');
+        div.className = 'seg-links';
+        div.innerHTML = MAP[lab];
+        tds[2].appendChild(div);
+      }
+      if (lab === '講義 自由ラジオとミニFM'){
+        var old = tds[2].querySelector('a[href="./archive2022-day2.html"]');
+        if (old){ old.href = REF3; old.textContent = '参照資料(第3日)'; }
+      }
+    }
+  }
+  new MutationObserver(deco3rev).observe(tt, {childList:true, subtree:true});
+  deco3rev();
+})();
+
 </script>
 
 </div>
