@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>受信|メディア文化ゼミナール 2026</title>
+<style>
+  :root{
+    --bg:#151311;
+    --panel:#221f1b;
+    --ink:#efe9dd;
+    --sub:#8d857a;
+    --line:#3a342d;
+    --accent:#ff8a4c;
+    --lcd:#98b56a;
+    --lcdbg:#2a3018;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.6;
+  }
+  .bar{
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    padding:12px 22px;border-bottom:1px solid var(--line);
+  }
+  .bar h1{font-size:15px;margin:0;font-weight:normal;letter-spacing:.14em;color:var(--sub);}
+  .badge{font-size:15px;letter-spacing:.08em;}
+  .badge b{color:var(--accent);font-size:22px;font-variant-numeric:tabular-nums;font-weight:normal;}
+  .grow{flex:1;}
+  .bar button{
+    font-family:inherit;font-size:13px;padding:7px 13px;border-radius:6px;cursor:pointer;
+    background:var(--panel);color:var(--ink);border:1px solid var(--line);
+  }
+  .bar button:hover{border-color:var(--accent);}
+  .bar button.on{background:var(--accent);color:#1a1512;border-color:var(--accent);}
+
+  /* ---- ポケベル本体 ---- */
+  .stage{display:flex;align-items:center;justify-content:center;padding:40px 20px;min-height:calc(100vh - 120px);}
+  .device{
+    background:#d8d2c6;border-radius:22px;padding:26px 26px 20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.5);
+    width:min(1020px,94vw);
+  }
+  .lcd{
+    background:var(--lcdbg);border-radius:6px;padding:26px 28px 22px;
+    border:3px solid #6b6558;
+  }
+  .meta{
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+    color:#7d9457;font-size:clamp(13px,1.6vw,20px);letter-spacing:.1em;
+    display:flex;justify-content:space-between;margin-bottom:14px;
+  }
+  .line{
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+    color:var(--lcd);
+    font-size:clamp(20px,4.4vw,48px);
+    letter-spacing:.08em;
+    min-height:1.35em;line-height:1.35;
+    white-space:pre;overflow:hidden;
+  }
+  .line.kana{
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",monospace;
+    color:#c6e08a;letter-spacing:.18em;margin-top:10px;
+    text-shadow:0 0 18px rgba(180,220,110,.28);
+  }
+  .lcdnote{color:#5f7343;font-size:clamp(11px,1.3vw,15px);margin-top:14px;letter-spacing:.08em;min-height:1.4em;}
+  .devbar{display:flex;align-items:center;gap:16px;margin-top:18px;}
+  .devbar .unread{color:#3c372e;font-size:14px;letter-spacing:.1em;}
+  .devbar .unread b{color:#b8431a;font-size:20px;font-variant-numeric:tabular-nums;font-weight:normal;}
+  .devbar .grow{flex:1;}
+  .devbar button{
+    font-family:inherit;font-size:15px;padding:11px 26px;border-radius:8px;cursor:pointer;
+    background:#4a443a;color:#efe9dd;border:none;letter-spacing:.08em;
+  }
+  .devbar button:disabled{opacity:.35;cursor:default;}
+
+  /* ---- ログ ---- */
+  .log{max-width:1000px;margin:0 auto;padding:24px 22px 60px;}
+  .item{
+    border-bottom:1px solid var(--line);padding:14px 4px;display:flex;gap:18px;align-items:baseline;
+  }
+  .item .no{color:var(--accent);font-variant-numeric:tabular-nums;font-size:20px;min-width:3.4em;
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.08em;}
+  .item .tm{color:var(--sub);font-size:13px;min-width:5em;font-variant-numeric:tabular-nums;}
+  .item .dg{font-family:"SFMono-Regular",Menlo,Consolas,monospace;font-size:19px;letter-spacing:.1em;color:#cdc5b6;flex:1;word-break:break-all;}
+  .item .kn{font-size:23px;letter-spacing:.14em;color:#fff;min-width:9em;}
+  .empty{color:var(--sub);text-align:center;padding:80px 0;font-size:15px;}
+
+  /* ---- QR ---- */
+  #qr{
+    position:fixed;inset:0;background:#fff;display:none;
+    align-items:center;justify-content:center;flex-direction:column;gap:22px;z-index:50;cursor:pointer;
+  }
+  #qr.on{display:flex;}
+  #qr .cap{color:#22201d;font-size:20px;letter-spacing:.1em;}
+  #qr .url{color:#6f6a62;font-size:14px;font-family:"SFMono-Regular",Menlo,Consolas,monospace;}
+  .hide{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <h1>受信</h1>
+  <span class="badge">着信 <b id="total">0</b></span>
+  <span class="badge">未読 <b id="unreadTop">0</b></span>
+  <span class="grow"></span>
+  <button id="s1">段階1 数字</button>
+  <button id="s2">段階2 かな</button>
+  <button id="s3">段階3 輻輳</button>
+  <button id="qrBtn">送信ページQR</button>
+  <button id="viewBtn">ログ表示</button>
+  <button id="csvBtn">CSV</button>
+  <button id="clrBtn">記録を消す</button>
+</div>
+
+<div class="stage" id="pagerView">
+  <div class="device">
+    <div class="lcd">
+      <div class="meta"><span id="mFrom">— — — —</span><span id="mTime"></span></div>
+      <div class="line" id="lDigits"></div>
+      <div class="line kana" id="lKana"></div>
+      <div class="lcdnote" id="lNote">着信を待っています</div>
+    </div>
+    <div class="devbar">
+      <span class="unread">未読 <b id="unread">0</b> 件</span>
+      <span class="grow"></span>
+      <button id="nextBtn" disabled>次を読む</button>
+    </div>
+  </div>
+</div>
+
+<div class="log hide" id="logView">
+  <div id="logList"></div>
+  <div class="empty" id="logEmpty">まだ着信はありません。</div>
+</div>
+
+<div id="qr">
+  <div id="qrBox"></div>
+  <div class="cap">送信ページ</div>
+  <div class="url">mediaculture2026.github.io/pager.html</div>
+</div>
+
+<script>
+var QR_PAGER = {"n":33,"d":"M0 0h7v1h-7zM8 0h2v1h-2zM11 0h3v1h-3zM15 0h2v1h-2zM20 0h2v1h-2zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM13 1h2v1h-2zM18 1h3v1h-3zM22 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM12 2h1v1h-1zM14 2h6v1h-6zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM12 3h1v1h-1zM16 3h2v1h-2zM21 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h2v1h-2zM12 4h2v1h-2zM16 4h1v1h-1zM19 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM11 5h3v1h-3zM15 5h1v1h-1zM18 5h1v1h-1zM20 5h2v1h-2zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h3v1h-3zM14 7h1v1h-1zM17 7h1v1h-1zM19 7h3v1h-3zM23 7h2v1h-2zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM10 8h3v1h-3zM15 8h1v1h-1zM17 8h2v1h-2zM21 8h9v1h-9zM32 8h1v1h-1zM1 9h2v1h-2zM4 9h2v1h-2zM8 9h1v1h-1zM12 9h1v1h-1zM14 9h4v1h-4zM20 9h4v1h-4zM25 9h1v1h-1zM29 9h3v1h-3zM0 10h8v1h-8zM9 10h3v1h-3zM13 10h4v1h-4zM18 10h1v1h-1zM20 10h1v1h-1zM23 10h3v1h-3zM29 10h1v1h-1zM31 10h1v1h-1zM0 11h2v1h-2zM3 11h3v1h-3zM7 11h2v1h-2zM11 11h3v1h-3zM15 11h1v1h-1zM20 11h1v1h-1zM22 11h2v1h-2zM25 11h1v1h-1zM31 11h1v1h-1zM0 12h1v1h-1zM2 12h1v1h-1zM5 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM22 12h3v1h-3zM26 12h1v1h-1zM28 12h2v1h-2zM31 12h1v1h-1zM1 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM18 13h3v1h-3zM23 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM1 14h4v1h-4zM6 14h1v1h-1zM8 14h2v1h-2zM13 14h1v1h-1zM15 14h1v1h-1zM20 14h2v1h-2zM23 14h1v1h-1zM25 14h2v1h-2zM30 14h2v1h-2zM0 15h6v1h-6zM9 15h1v1h-1zM12 15h6v1h-6zM21 15h1v1h-1zM23 15h4v1h-4zM28 15h2v1h-2zM1 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM9 16h5v1h-5zM16 16h7v1h-7zM24 16h1v1h-1zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM1 17h1v1h-1zM3 17h1v1h-1zM5 17h1v1h-1zM8 17h3v1h-3zM12 17h1v1h-1zM15 17h2v1h-2zM23 17h1v1h-1zM25 17h1v1h-1zM29 17h3v1h-3zM2 18h2v1h-2zM6 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM12 18h1v1h-1zM15 18h1v1h-1zM17 18h1v1h-1zM21 18h3v1h-3zM27 18h1v1h-1zM29 18h1v1h-1zM31 18h1v1h-1zM1 19h2v1h-2zM4 19h2v1h-2zM8 19h1v1h-1zM10 19h1v1h-1zM14 19h6v1h-6zM21 19h1v1h-1zM23 19h2v1h-2zM26 19h2v1h-2zM32 19h1v1h-1zM0 20h1v1h-1zM4 20h8v1h-8zM15 20h1v1h-1zM18 20h3v1h-3zM25 20h2v1h-2zM28 20h2v1h-2zM0 21h3v1h-3zM5 21h1v1h-1zM9 21h2v1h-2zM13 21h2v1h-2zM16 21h1v1h-1zM19 21h1v1h-1zM21 21h3v1h-3zM25 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM31 21h1v1h-1zM6 22h4v1h-4zM11 22h1v1h-1zM13 22h1v1h-1zM16 22h1v1h-1zM18 22h2v1h-2zM21 22h1v1h-1zM23 22h1v1h-1zM25 22h2v1h-2zM28 22h1v1h-1zM30 22h2v1h-2zM3 23h1v1h-1zM5 23h1v1h-1zM7 23h4v1h-4zM12 23h1v1h-1zM14 23h1v1h-1zM17 23h1v1h-1zM19 23h5v1h-5zM25 23h1v1h-1zM27 23h2v1h-2zM31 23h1v1h-1zM0 24h5v1h-5zM6 24h4v1h-4zM11 24h1v1h-1zM13 24h3v1h-3zM17 24h2v1h-2zM21 24h9v1h-9zM8 25h3v1h-3zM15 25h4v1h-4zM21 25h2v1h-2zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h2v1h-2zM0 26h7v1h-7zM8 26h4v1h-4zM13 26h3v1h-3zM18 26h1v1h-1zM20 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h2v1h-2zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h2v1h-2zM13 27h1v1h-1zM20 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h3v1h-3zM16 28h1v1h-1zM19 28h1v1h-1zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM9 29h1v1h-1zM11 29h3v1h-3zM17 29h4v1h-4zM23 29h2v1h-2zM26 29h3v1h-3zM30 29h2v1h-2zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM9 30h4v1h-4zM14 30h2v1h-2zM18 30h1v1h-1zM20 30h2v1h-2zM26 30h4v1h-4zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h2v1h-2zM13 31h1v1h-1zM15 31h3v1h-3zM21 31h6v1h-6zM0 32h7v1h-7zM8 32h2v1h-2zM12 32h3v1h-3zM17 32h1v1h-1zM19 32h1v1h-1zM21 32h5v1h-5zM32 32h1v1h-1z"};
+</script>
+<script>
+(function(){
+  var TOPIC = 'mczemi26-pager-r7t3';
+  var P = new URLSearchParams(location.search);
+  var DELAY = parseInt(P.get('delay') || '4500', 10);   /* 到達までの遅延 */
+  var RESOLVE = 1400;                                   /* 数字が出てからかなが解けるまで */
+  var view = (P.get('view') === 'log') ? 'log' : 'pager';
+
+  var TABLE = {}, DAKU_OK = {}, HAN_OK = {};
+  var list = [], unread = 0, shownIdx = -1, resolveTimer = null;
+
+  var DAKU = {'か':'が','き':'ぎ','く':'ぐ','け':'げ','こ':'ご','さ':'ざ','し':'じ','す':'ず','せ':'ぜ','そ':'ぞ',
+              'た':'だ','ち':'ぢ','つ':'づ','て':'で','と':'ど','は':'ば','ひ':'び','ふ':'ぶ','へ':'べ','ほ':'ぼ'};
+  var HAN  = {'は':'ぱ','ひ':'ぴ','ふ':'ぷ','へ':'ぺ','ほ':'ぽ'};
+
+  var el = function(id){ return document.getElementById(id); };
+
+  /* ---------- 符号表 ---------- */
+  fetch('./pager-table.json?nc=' + Date.now()).then(function(r){ return r.json(); }).then(function(j){
+    (j.rows || []).forEach(function(r){ TABLE[r[0]] = r[1]; });
+    redraw();
+  }).catch(function(){});
+
+  function decode(digits){
+    var out = '', i = 0;
+    while (i < digits.length){
+      var p = digits.substr(i, 2);
+      if (p.length < 2){ out += '?'; break; }
+      var c = TABLE[p];
+      i += 2;
+      if (c === undefined){ out += '?'; continue; }
+      if (c === '゛'){
+        var prev = out.slice(-1);
+        if (DAKU[prev]) out = out.slice(0, -1) + DAKU[prev]; else out += '゛';
+        continue;
+      }
+      if (c === '゜'){
+        var pv = out.slice(-1);
+        if (HAN[pv]) out = out.slice(0, -1) + HAN[pv]; else out += '゜';
+        continue;
+      }
+      out += c;
+    }
+    return out;
+  }
+
+  /* ---------- 保存 ---------- */
+  function save(){ try { localStorage.setItem('mc_pager_log', JSON.stringify(list)); } catch(e){} }
+  function load(){
+    try { list = JSON.parse(localStorage.getItem('mc_pager_log') || '[]') || []; } catch(e){ list = []; }
+    if (list.length){ shownIdx = list.length - 1; }
+  }
+
+  /* ---------- 音 ---------- */
+  var AC = null, master = null;
+  function audio(){
+    if (!AC){
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return;
+      AC = new C(); master = AC.createGain(); master.gain.value = 0.35; master.connect(AC.destination);
+    }
+    if (AC.state === 'suspended') AC.resume();
+  }
+  function beep(f, dur, delay, gain){
+    if (!AC) return;
+    var t0 = AC.currentTime + (delay || 0);
+    var o = AC.createOscillator(); o.type = 'square'; o.frequency.value = f;
+    var g = AC.createGain(); var v = (gain == null) ? 0.25 : gain;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(v, t0 + 0.005);
+    g.gain.setValueAtTime(v, t0 + dur - 0.005);
+    g.gain.linearRampToValueAtTime(0, t0 + dur);
+    o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + dur + 0.02);
+  }
+  function ring(){
+    audio();
+    for (var i = 0; i < 2; i++){
+      beep(2400, 0.09, i * 0.42);
+      beep(2400, 0.09, i * 0.42 + 0.16);
+    }
+  }
+  document.addEventListener('click', audio, { once:false });
+
+  /* ---------- 段階 ---------- */
+  var stage = 1;
+  try { stage = parseInt(localStorage.getItem('mc_pager_stage') || '1', 10); } catch(e){}
+  function setStage(n, broadcast){
+    stage = n;
+    try { localStorage.setItem('mc_pager_stage', String(n)); } catch(e){}
+    ['s1','s2','s3'].forEach(function(id, i){ el(id).classList.toggle('on', i + 1 === n); });
+    if (broadcast){
+      fetch('https://ntfy.sh/' + TOPIC, { method:'POST', body: JSON.stringify({ type:'ctrl', stage:n }) })
+        .catch(function(){});
+    }
+    redraw();
+  }
+  el('s1').addEventListener('click', function(){ setStage(1, true); });
+  el('s2').addEventListener('click', function(){ setStage(2, true); });
+  el('s3').addEventListener('click', function(){ setStage(3, true); });
+
+  /* ---------- 表示 ---------- */
+  function two(n){ return (n < 10 ? '0' : '') + n; }
+  function hhmm(ts){ var d = new Date(ts); return two(d.getHours()) + ':' + two(d.getMinutes()); }
+
+  function showPager(idx, animate){
+    if (resolveTimer){ clearTimeout(resolveTimer); resolveTimer = null; }
+    var m = list[idx];
+    if (!m){
+      el('mFrom').textContent = '— — — —';
+      el('mTime').textContent = '';
+      el('lDigits').textContent = '';
+      el('lKana').textContent = '';
+      el('lNote').textContent = '着信を待っています';
+      return;
+    }
+    el('mFrom').textContent = m.from.split('').join(' ');
+    el('mTime').textContent = hhmm(m.at) + '  ( ' + (idx + 1) + ' / ' + list.length + ' )';
+    el('lDigits').textContent = m.digits;
+    el('lNote').textContent = m.digits.length + ' 桁';
+    var kana = (stage >= 2) ? decode(m.digits) : '';
+    if (!animate || !kana){
+      el('lKana').textContent = kana;
+      return;
+    }
+    el('lKana').textContent = '';
+    resolveTimer = setTimeout(function(){
+      var i = 0;
+      (function step(){
+        i++;
+        el('lKana').textContent = kana.slice(0, i);
+        if (i < kana.length) resolveTimer = setTimeout(step, 130);
+      })();
+    }, RESOLVE);
+  }
+
+  function showLog(){
+    var box = el('logList');
+    box.innerHTML = list.map(function(m, i){
+      var kana = (stage >= 2) ? decode(m.digits) : '';
+      return '<div class="item"><span class="no">' + m.from + '</span>' +
+             '<span class="tm">' + hhmm(m.at) + '</span>' +
+             '<span class="dg">' + m.digits + '</span>' +
+             '<span class="kn">' + kana + '</span></div>';
+    }).join('');
+    el('logEmpty').classList.toggle('hide', list.length > 0);
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  function redraw(){
+    el('total').textContent = list.length;
+    el('unread').textContent = unread;
+    el('unreadTop').textContent = unread;
+    el('nextBtn').disabled = (unread === 0);
+    if (view === 'pager') showPager(shownIdx, false); else showLog();
+  }
+
+  el('nextBtn').addEventListener('click', advance);
+  document.addEventListener('keydown', function(e){
+    if (e.key === ' ' || e.key === 'ArrowRight'){ e.preventDefault(); advance(); }
+    if (e.key === 'Escape'){ el('qr').classList.remove('on'); }
+  });
+  function advance(){
+    if (unread === 0) return;
+    shownIdx = list.length - unread;
+    unread--;
+    redraw();
+    showPager(shownIdx, true);
+  }
+
+  /* ---------- 受信 ---------- */
+  function arrive(m){
+    setTimeout(function(){
+      list.push(m); save(); ring();
+      if (view === 'pager'){
+        if (unread === 0){
+          shownIdx = list.length - 1;
+          el('total').textContent = list.length;
+          showPager(shownIdx, true);
+        } else {
+          unread++;
+        }
+      }
+      redraw();
+    }, DELAY);
+  }
+
+  try {
+    var es = new EventSource('https://ntfy.sh/' + TOPIC + '/sse');
+    es.onmessage = function(ev){
+      try {
+        var d = JSON.parse(ev.data);
+        if (d.event !== 'message') return;
+        var m = JSON.parse(d.message);
+        if (m.type !== 'msg') return;
+        arrive({ from: String(m.from || '????'), digits: String(m.digits || ''), at: Date.now() });
+      } catch(e){}
+    };
+  } catch(e){}
+
+  /* ---------- ボタン ---------- */
+  el('viewBtn').addEventListener('click', function(){
+    view = (view === 'pager') ? 'log' : 'pager';
+    el('pagerView').classList.toggle('hide', view !== 'pager');
+    el('logView').classList.toggle('hide', view !== 'log');
+    el('viewBtn').textContent = (view === 'pager') ? 'ログ表示' : 'ポケベル表示';
+    if (view === 'pager'){ unread = 0; }
+    redraw();
+  });
+  el('csvBtn').addEventListener('click', function(){
+    var rows = [['受信時刻','発信番号','数字列','解読']];
+    list.forEach(function(m){
+      var d = new Date(m.at);
+      rows.push([d.toLocaleString('ja-JP'), m.from, m.digits, decode(m.digits)]);
+    });
+    var csv = '﻿' + rows.map(function(r){
+      return r.map(function(c){ return '"' + String(c).replace(/"/g,'""') + '"'; }).join(',');
+    }).join('\r\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv' }));
+    a.download = 'pager_log.csv';
+    a.click();
+  });
+  el('clrBtn').addEventListener('click', function(){
+    if (!confirm('受信記録をすべて消します。よろしいですか。')) return;
+    list = []; unread = 0; shownIdx = -1;
+    try { localStorage.removeItem('mc_pager_log'); } catch(e){}
+    redraw();
+  });
+  el('qrBtn').addEventListener('click', function(){
+    var n = QR_PAGER.n, s = 12;
+    el('qrBox').innerHTML = '<svg width="' + (n*s) + '" height="' + (n*s) + '" viewBox="0 0 ' + n + ' ' + n +
+      '" shape-rendering="crispEdges"><rect width="' + n + '" height="' + n + '" fill="#fff"/>' +
+      '<path d="' + QR_PAGER.d + '" fill="#000"/></svg>';
+    el('qr').classList.add('on');
+  });
+  el('qr').addEventListener('click', function(){ el('qr').classList.remove('on'); });
+
+  /* ---------- 起動 ---------- */
+  load();
+  el('pagerView').classList.toggle('hide', view !== 'pager');
+  el('logView').classList.toggle('hide', view !== 'log');
+  el('viewBtn').textContent = (view === 'pager') ? 'ログ表示' : 'ポケベル表示';
+  setStage(stage, false);
+  redraw();
+  if (view === 'pager') showPager(shownIdx, false);
+})();
+</script>
+</body>
+</html>
