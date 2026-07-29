@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3日 メディアのハック|メディア文化ゼミナール 2026</title>
+<style>
+  :root{
+    --ink:#22201d;
+    --paper:#faf8f4;
+    --accent:#b8431a;
+    --line:#d9d2c7;
+    --sub:#6f6a62;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.9;
+    font-size:16px;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 80px;}
+  header{
+    border-bottom:1px solid var(--line);
+    padding:28px 0 20px;
+    margin-bottom:8px;
+  }
+  .site{font-size:13px;letter-spacing:.12em;color:var(--sub);}
+  .site a{color:var(--sub);text-decoration:none;}
+  .daylabel{
+    margin:26px 0 4px;
+    font-size:13px;
+    letter-spacing:.2em;
+    color:var(--accent);
+  }
+  h1{margin:0 0 8px;font-size:30px;letter-spacing:.04em;line-height:1.4;}
+  .lede{color:var(--sub);font-size:14px;margin:0 0 24px;}
+  h2{
+    margin:56px 0 16px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-size:20px;
+    letter-spacing:.06em;
+  }
+  h2 .num{color:var(--accent);margin-right:.6em;font-size:15px;}
+  h3{font-size:16px;margin:28px 0 8px;}
+  p{margin:0 0 16px;}
+  ul{margin:0 0 16px;padding-left:1.4em;}
+  li{margin-bottom:6px;}
+  .kadai{
+    background:#fff;
+    border:1px solid var(--line);
+    border-left:4px solid var(--accent);
+    padding:20px 22px;
+    margin:20px 0;
+  }
+  .kadai p:last-child{margin-bottom:0;}
+  .btn{
+    display:inline-block;
+    background:var(--accent);
+    color:#fff;
+    text-decoration:none;
+    padding:12px 28px;
+    border-radius:4px;
+    font-size:15px;
+    letter-spacing:.08em;
+  }
+  .btn:hover{opacity:.85;}
+  .note{font-size:13px;color:var(--sub);}
+  a{color:var(--accent);}
+  blockquote{
+    margin:0 0 20px;
+    padding:14px 20px;
+    background:#fff;
+    border-left:3px solid var(--line);
+    font-size:15px;
+  }
+  .src{font-size:13px;color:var(--sub);margin:-8px 0 24px;padding-left:20px;}
+  .toi{
+    margin:48px 0;
+    padding:40px 24px;
+    background:#fff;
+    border:1px solid var(--line);
+    text-align:center;
+    font-size:22px;
+    line-height:1.8;
+    letter-spacing:.06em;
+  }
+  .codetable{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:20px 22px;
+    margin:20px 0;
+  }
+  .codegrid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px 6px;
+    font-size:15px;
+  }
+  .codegrid span{
+    display:flex;align-items:baseline;gap:.4em;
+    font-variant-numeric:tabular-nums;
+  }
+  .codegrid b{
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+    font-weight:normal;color:var(--accent);font-size:13px;
+  }
+  @media (max-width:520px){ .codegrid{grid-template-columns:repeat(3,1fr);} }
+  footer{
+    margin-top:80px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--sub);
+  }
+  .navrow{display:flex;justify-content:space-between;font-size:14px;margin-top:40px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="site"><a href="./index.html">メディア文化ゼミナール 2026|武蔵大学 集中講義</a></div>
+</header>
+
+<div class="daylabel">DAY 3</div>
+<h1>メディアのハック</h1>
+<p class="lede">担当 毛原大樹</p>
+<p class="note">このページは、授業の進行にあわせて2限・3限の内容が追加されます。<strong>スマートフォンを手元に。iPhoneはマナースイッチを解除しておいてください。</strong></p>
+
+<h2><span class="num">1</span>前日から</h2>
+<p>昨日は、機械で完結できるはずの伝達をあえて物理空間に開いたとき、そこに人間の入り込む余地が生まれる、という話でした。今日は反対側から見ます。<strong>与えられた制約を、使う側がどう乗りこなすか。</strong></p>
+<p>制度の外に電波を出した人たち。決められた符号を勝手に読み替えた人たち。今日はその二つを、歴史と実技の両方でやります。</p>
+
+<h2><span class="num">2</span>自由ラジオとミニFM</h2>
+<p>放送は、免許を持つ者だけが送信できる制度として組み立てられてきました。その制度の外側、あるいは隙間に、自分の送信機を置いた人たちがいます。</p>
+<ul>
+  <li>粉川哲夫と自由ラジオ——出力を絞ることで、法の網の目をくぐりながら、聞こえる範囲そのものを作品にする</li>
+  <li>ミニFM——数十メートルしか届かない放送局。届かないことが欠陥ではなく設計になる</li>
+  <li>Radio Caroline——領海の外に船を出す。国境が電波にとって何であるかを露出させた</li>
+  <li>海上要塞の放送局——放置された構造物を国家に見立てる。制度のバグを突く</li>
+  <li>ラジオ塔——公園に置かれた公共の受信装置。聴くことが集団の行為だった時代</li>
+</ul>
+<p>【参照資料】<a href="./archive2022-day2.html">視座・黎明期・電子メディアの芸術的思考(まとめページ)</a></p>
+
+<h2><span class="num">3</span>既存メディアのハック</h2>
+<p>制度の外に出るのではなく、すでにあるものを別の用途に使い倒す方向のやり方です。授業では実物と映像で紹介します。</p>
+<ul>
+  <li>ファミコンラジオ</li>
+  <li>人間ラジコン</li>
+</ul>
+
+<div id="stage2"></div>
+<div id="stage3"></div>
+
+<div class="navrow">
+  <a href="./day2.html">← 第2日 介在する余地</a>
+  <span>第4日(準備中)</span>
+</div>
+
+<footer>
+  © 2026 Hiroki Kehara|メディア文化ゼミナール
+</footer>
+
+<script>
+(function(){
+  var TOPIC = 'mczemi26-reveal-k4x9';
+  var PAGER_TOPIC = 'mczemi26-pager-r7t3';
+  var STAGES = {
+    s2: {src: './day3-2-k5n8.html', slot: 'stage2', key: 'mc_d3_s2', done: false},
+    s3: {src: './day3-3-t2v6.html', slot: 'stage3', key: 'mc_d3_s3', done: false}
+  };
+
+  function renumber(){
+    var nums = document.querySelectorAll('h2 .num');
+    for (var i = 0; i < nums.length; i++){ nums[i].textContent = String(i + 1); }
+  }
+
+  function reveal(st, persist){
+    if (st.done) return;
+    st.done = true;
+    fetch(st.src).then(function(r){ return r.text(); }).then(function(html){
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var wrap = doc.querySelector('.wrap');
+      if (!wrap) return;
+      var hd = wrap.querySelector('header'); if (hd) hd.remove();
+      var ft = wrap.querySelector('footer'); if (ft) ft.remove();
+      document.getElementById(st.slot).innerHTML = wrap.innerHTML;
+      renumber();
+      if (persist) { try { localStorage.setItem(st.key, '1'); } catch(e){} }
+      if (tableWanted) showTable();
+    }).catch(function(){ st.done = false; });
+  }
+
+  /* 符号表は段階2になってから出す。数字だけの段階で見えると語呂合わせを考えなくなる */
+  var tableWanted = false, tableDone = false;
+  function showTable(){
+    if (tableDone) return;
+    var box = document.getElementById('codeTable');
+    if (!box) { tableWanted = true; return; }
+    tableDone = true;
+    box.style.display = '';
+    fetch('./pager-table.json?nc=' + Date.now()).then(function(r){ return r.json(); }).then(function(j){
+      var g = box.querySelector('.codegrid');
+      g.innerHTML = (j.rows || []).map(function(r){
+        return '<span><b>' + r[0] + '</b>' + r[1] + '</span>';
+      }).join('');
+    }).catch(function(){});
+  }
+
+  if (location.search.indexOf('full=1') !== -1) {
+    reveal(STAGES.s2, false); reveal(STAGES.s3, false); tableWanted = true;
+  }
+  try {
+    if (localStorage.getItem('mc_d3_s2') === '1') { reveal(STAGES.s2, true); }
+    if (localStorage.getItem('mc_d3_s3') === '1') { reveal(STAGES.s3, true); }
+  } catch(e){}
+
+  try {
+    var es = new EventSource('https://ntfy.sh/' + TOPIC + '/sse');
+    es.onmessage = function(ev){
+      try {
+        var d = JSON.parse(ev.data);
+        if (d.event !== 'message') return;
+        var m = String(d.message || '');
+        if (m.indexOf('d3open2') !== -1) { reveal(STAGES.s2, true); }
+        if (m.indexOf('d3open3') !== -1) { reveal(STAGES.s3, true); }
+      } catch(e){}
+    };
+  } catch(e){}
+
+  try {
+    var ps = new EventSource('https://ntfy.sh/' + PAGER_TOPIC + '/sse?since=6h');
+    ps.onmessage = function(ev){
+      try {
+        var d = JSON.parse(ev.data);
+        if (d.event !== 'message') return;
+        var m = JSON.parse(d.message);
+        if (m.type === 'ctrl' && m.stage >= 2){ tableWanted = true; showTable(); }
+      } catch(e){}
+    };
+  } catch(e){}
+})();
+</script>
+
+</div>
+</body>
+</html>
