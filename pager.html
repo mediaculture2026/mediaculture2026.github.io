@@ -319,7 +319,7 @@
       busyTone();
       elStat.textContent = 'お話し中';
       setGuide('<strong>お話し中です。</strong>しばらくしてからおかけ直しください。');
-      later(function(){ goOnhook('切れました。かけ直してください。'); }, 4200);
+    later(function(){ goOnhook('切れました。かけ直してください。'); }, 4200);
       return;
     }
     ringback();
@@ -368,16 +368,22 @@
       });
   }
 
-  /* ---------- 制御信号と輻輳の監視 ---------- */
+  /* ---------- 制御信号と輻輳の監視 ----------
+     since=6h で、あとから開いた端末にも現在の段階が届く。
+     接続直後に流れてくる過去ぶんは輻輳の判定には使わない。 */
+  var connectedAt = Date.now();
   try {
-    var es = new EventSource('https://ntfy.sh/' + TOPIC + '/sse');
+    var es = new EventSource('https://ntfy.sh/' + TOPIC + '/sse?since=6h');
+    es.onopen = function(){ connectedAt = Date.now(); };
     es.onmessage = function(ev){
       try {
         var d = JSON.parse(ev.data);
         if (d.event !== 'message') return;
         var m = JSON.parse(d.message);
         if (m.type === 'ctrl' && m.stage){ stage = m.stage; return; }
-        if (m.type === 'msg' && m.cid !== CID){ lastTraffic = Date.now(); }
+        if (m.type === 'msg' && m.cid !== CID && (Date.now() - connectedAt) > 3000){
+          lastTraffic = Date.now();
+        }
       } catch(e){}
     };
   } catch(e){}
