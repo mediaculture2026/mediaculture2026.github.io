@@ -154,6 +154,14 @@
 </ul>
 
 <div id="stage2"></div>
+
+<h2>ポケットベル 2タッチ入力 符号表</h2>
+<div class="codetable" id="codeTable">
+  <div class="codegrid"></div>
+</div>
+<p class="note">数字2桁で1文字。濁点・半濁点は<strong>文字のあと</strong>に打ちます。「ば」は 61 04。<br>
+カナで送るには、メッセージを打つ前に <strong>※2※2</strong> を押してください。押さないと数字のまま送られます。打ち終わったら <strong>＃＃</strong> で送信です。</p>
+
 <div id="stage3"></div>
 
 <div class="navrow">
@@ -168,7 +176,6 @@
 <script>
 (function(){
   var TOPIC = 'mczemi26-reveal-k4x9';
-  var PAGER_TOPIC = 'mczemi26-pager-r7t3';
   var STAGES = {
     s2: {src: './day3-2-k5n8.html', slot: 'stage2', key: 'mc_d3_s2', done: false},
     s3: {src: './day3-3-t2v6.html', slot: 'stage3', key: 'mc_d3_s3', done: false}
@@ -191,31 +198,23 @@
       document.getElementById(st.slot).innerHTML = wrap.innerHTML;
       renumber();
       if (persist) { try { localStorage.setItem(st.key, '1'); } catch(e){} }
-      applyStage();
     }).catch(function(){ st.done = false; });
   }
 
-  /* 符号表は段階2になってから出す。数字だけの段階で見えると語呂合わせを考えなくなる。
-     いちばん新しい段階だけを見るので、段階1に戻せば表もまた隠れる */
-  var curStage = 1, tableFilled = false;
-  function applyStage(){
+  /* 符号表はこのページに常に置く。カナで送るには ※2※2 が必要なので、
+     表が見えていても「数字だけ」の段階は成立する */
+  function fillTable(){
     var box = document.getElementById('codeTable');
     if (!box) return;
-    if (curStage < 2){ box.style.display = 'none'; return; }
-    box.style.display = '';
-    if (tableFilled) return;
-    tableFilled = true;
     fetch('./pager-table.json?nc=' + Date.now()).then(function(r){ return r.json(); }).then(function(j){
-      var g = box.querySelector('.codegrid');
-      g.innerHTML = (j.rows || []).map(function(r){
+      box.querySelector('.codegrid').innerHTML = (j.rows || []).map(function(r){
         return '<span><b>' + r[0] + '</b>' + r[1] + '</span>';
       }).join('');
-    }).catch(function(){ tableFilled = false; });
+    }).catch(function(){});
   }
+  fillTable();
 
-  var FULL = location.search.indexOf('full=1') !== -1;
-  if (FULL) {
-    curStage = 2;
+  if (location.search.indexOf('full=1') !== -1) {
     reveal(STAGES.s2, false); reveal(STAGES.s3, false);
   }
   try {
@@ -232,19 +231,6 @@
         var m = String(d.message || '');
         if (m.indexOf('d3open2') !== -1) { reveal(STAGES.s2, true); }
         if (m.indexOf('d3open3') !== -1) { reveal(STAGES.s3, true); }
-      } catch(e){}
-    };
-  } catch(e){}
-
-  try {
-    var ps = new EventSource('https://ntfy.sh/' + PAGER_TOPIC + '/sse?since=6h');
-    ps.onmessage = function(ev){
-      try {
-        var d = JSON.parse(ev.data);
-        if (d.event !== 'message') return;
-        var m = JSON.parse(d.message);
-        if (FULL) return;   /* 投影用プレビューでは段階の信号を拾わない(符号表は常に出す) */
-        if (m.type === 'ctrl' && m.stage){ curStage = m.stage; applyStage(); }
       } catch(e){}
     };
   } catch(e){}
