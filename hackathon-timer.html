@@ -147,8 +147,9 @@
   function fmtDur(ms){
     if (ms < 0) ms = 0;
     var s = Math.floor(ms / 1000);
-    var m = Math.floor(s / 60);
-    return two(m) + ':' + two(s % 60);
+    var h = Math.floor(s / 3600);
+    if (h > 0) return h + ':' + two(Math.floor(s / 60) % 60) + ':' + two(s % 60);
+    return two(Math.floor(s / 60)) + ':' + two(s % 60);
   }
   function el(id){ return document.getElementById(id); }
   function name(g){ return g.n + '. ' + g.label; }
