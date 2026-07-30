@@ -1231,15 +1231,13 @@ function renderDash(){
   var row = document.createElement('div');
   row.className = 'controls';
   row.innerHTML = '<span class="offset">ポケベル:</span>' +
-    '<button id="pgS1">段階1 符号表を伏せる</button>' +
-    '<button id="pgS2">段階2 符号表を配る</button>' +
-    '<button id="pgS3">段階3 輻輳オン</button>' +
+    '<button id="pgS1">輻輳オフ</button>' +
+    '<button id="pgS3">輻輳オン(段階3)</button>' +
     '<span id="pgStat" class="offset"></span>';
   anchor.parentNode.parentNode.insertBefore(row, anchor.parentNode.nextSibling);
   var st = document.getElementById('pgStat');
-  [['pgS1', 1, '段階1。符号表を伏せました'],
-   ['pgS2', 2, '段階2。学生のページに符号表が出ました'],
-   ['pgS3', 3, '段階3。輻輳オン(数秒内の重なりを話中で弾く)']].forEach(function(x){
+  [['pgS1', 1, '輻輳オフ。ふつうに送れます'],
+   ['pgS3', 3, '輻輳オン。数秒内に重なると話中で弾きます']].forEach(function(x){
     document.getElementById(x[0]).addEventListener('click', function(){
       st.textContent = '送信中…';
       fetch('https://ntfy.sh/' + PT, { method:'POST', body: JSON.stringify({ type:'ctrl', stage:x[1] }) })
