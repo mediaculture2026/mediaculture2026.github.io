@@ -1247,6 +1247,322 @@ function renderDash(){
   });
 })();
 
+
+/* ---- 2026-07-31 追記 ----
+   第4日 メディアハッカソン(電気なし)。
+   4限は 15:20〜17:05 で仮置き。違っていたらこの配列の時刻を直す。 */
+(function(){
+  var d = new Date();
+  if (!(d.getMonth() === 6 && d.getDate() === 31)) return;
+
+  var h1 = document.querySelector('.head h1');
+  if (h1) h1.textContent = '第4日 電気を使わずに伝える — 進行(教員用。URLは非公開)';
+
+  /* --- タイムテーブル --- */
+  SCHEDULE.length = 0;
+  [
+    {s:'09:00', e:'09:20', label:'前日の回収',
+     note:'第3日のミニッツから数点。「符号は運び手の都合から生まれる」を今日の実践につなぐ'},
+    {s:'09:20', e:'09:45', label:'ハッカソンの説明とルール',
+     note:'day4ページを投影。ルール5点を読む。評価は「誤りと遅延を説明できるか」。答えは言わない——64マスをどう送るかは学生に発明させる'},
+    {s:'09:45', e:'10:00', label:'チーム発表と役割',
+     note:'4・4・4・5。送信係と受信係はラウンドごとに交代。符号の設計は全員でやると明言する'},
+    {s:'10:00', e:'10:30', label:'符号の設計',
+     note:'机間を回るが答えは出さない。「1マスずつ送ると何回かかりますか」とだけ聞く'},
+    {s:'10:30', e:'10:45', label:'レーン決めと下見',
+     note:'キャンパスマップを広げて二地点を指示。肉声が届かない距離であることを事前に現地で確認しておく'},
+    {s:'10:45', e:'10:55', label:'休憩', note:''},
+    {s:'10:55', e:'11:15', label:'移動と配置',
+     note:'受信係のスマートフォンをここで預かる。受信用紙と筆記具を配る'},
+    {s:'11:15', e:'11:25', label:'第1ラウンド 課題配布',
+     note:'封筒を送信係だけに渡す。チームごとに別の句。開封は合図まで'},
+    {s:'11:25', e:'12:20', label:'第1ラウンド 五七五(3問)',
+     note:'制限時間なし。所要時間を計る。終わったチームから報告させる'},
+    {s:'12:20', e:'12:40', label:'帰還と記録',
+     note:'受信用紙を回収し、その場で一致マス数を数える。所要時間を確定して採点パネルへ'},
+    {s:'12:40', e:'13:25', label:'昼休み', note:''},
+    {s:'13:25', e:'13:50', label:'符号の手直し',
+     note:'第1ラウンドの反省を踏まえて符号を改訂させる。ここで圧縮を思いつくチームが出る。出なくても言わない'},
+    {s:'13:50', e:'14:00', label:'第2ラウンド 課題配布',
+     note:'役を交代。封筒を新しい送信係だけに渡す'},
+    {s:'14:00', e:'15:00', label:'第2ラウンド ビット絵(8×8)',
+     note:'64マス。ここが競技の芯。1マスずつでは終わらないと気づいたチームが伸びる'},
+    {s:'15:00', e:'15:10', label:'帰還と記録',
+     note:'受信用紙を回収。一致マス数を数えて採点パネルに入れる'},
+    {s:'15:10', e:'15:20', label:'休憩', note:''},
+    {s:'15:20', e:'15:40', label:'採点と現物の回収',
+     note:'符号表・下書き・受信用紙を現物のまま回収。清書させない。採点パネルで順位を確定'},
+    {s:'15:40', e:'16:25', label:'チーム発表(4チーム)',
+     note:'1チーム10分。符号の仕組み/どこで誤ったか/どこで時間がかかったか/送る側と受ける側の違い'},
+    {s:'16:25', e:'16:50', label:'講評',
+     note:'全チームの発表が終わってから。五七五の型が誤り検出として働いていた話は、ここで初めて出す'},
+    {s:'16:50', e:'17:05', label:'4日間の振り返りとミニッツ',
+     note:'「この4日間、何が動いていたと思いますか」から入る。学生の言葉が出そろってから第1日と第4日を並べる。最後にフォーム提出'}
+  ].forEach(function(x){ SCHEDULE.push(x); });
+
+  /* --- 第4日は段階公開を使わない --- */
+  ['revealBtn','d2s2Btn','d2s3Btn','d3s2Btn','d3s3Btn','pgS1','pgS3'].forEach(function(id){
+    var b = document.getElementById(id);
+    if (b){ b.disabled = true; b.title = '第4日では使いません'; }
+  });
+  var firstCtrl = document.querySelector('.controls');
+  if (firstCtrl && !document.getElementById('d4note')){
+    var nt = document.createElement('div');
+    nt.id = 'd4note'; nt.className = 'muted';
+    nt.style.margin = '-14px 0 22px';
+    nt.textContent = '第4日は段階公開を使いません。上の公開ボタンとポケベルの操作は無効にしてあります。';
+    firstCtrl.parentNode.insertBefore(nt, firstCtrl.nextSibling);
+  }
+
+  /* --- リンク --- */
+  var links = document.querySelector('.links');
+  if (links && !links.querySelector('a[data-d4]')){
+    [
+      ['./day4.html', 'day4ページ'],
+      ['FORM4_URL', '第4日フォーム'],
+      ['FORM4_EDIT', '第4日 回答を見る']
+    ].forEach(function(x){
+      var a = document.createElement('a');
+      a.href = x[0]; a.target = '_blank'; a.textContent = x[1];
+      a.setAttribute('data-d4', '1');
+      links.appendChild(a);
+    });
+  }
+
+  /* --- QR --- */
+  QR_PAGES.day4 = {label: '第4日 レジュメページ', url: 'https://mediaculture2026.github.io/day4.html'};
+  QR_DATA.day4 = {"n": 33, "d": "M0 0h7v1h-7zM9 0h2v1h-2zM12 0h3v1h-3zM16 0h2v1h-2zM19 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h3v1h-3zM13 1h3v1h-3zM17 1h1v1h-1zM22 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h2v1h-2zM11 2h1v1h-1zM13 2h1v1h-1zM15 2h1v1h-1zM17 2h3v1h-3zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM11 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM20 3h3v1h-3zM24 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h2v1h-2zM12 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM21 4h1v1h-1zM24 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h5v1h-5zM14 5h3v1h-3zM18 5h1v1h-1zM20 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h2v1h-2zM14 7h2v1h-2zM18 7h1v1h-1zM21 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM11 8h5v1h-5zM17 8h2v1h-2zM20 8h1v1h-1zM22 8h3v1h-3zM26 8h5v1h-5zM0 9h1v1h-1zM2 9h3v1h-3zM7 9h2v1h-2zM11 9h2v1h-2zM16 9h1v1h-1zM19 9h1v1h-1zM21 9h3v1h-3zM26 9h2v1h-2zM29 9h2v1h-2zM32 9h1v1h-1zM0 10h1v1h-1zM3 10h1v1h-1zM5 10h2v1h-2zM8 10h2v1h-2zM11 10h2v1h-2zM15 10h1v1h-1zM18 10h1v1h-1zM20 10h2v1h-2zM25 10h1v1h-1zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM4 11h2v1h-2zM7 11h1v1h-1zM10 11h1v1h-1zM12 11h1v1h-1zM14 11h3v1h-3zM20 11h3v1h-3zM24 11h1v1h-1zM28 11h4v1h-4zM3 12h1v1h-1zM5 12h2v1h-2zM8 12h2v1h-2zM11 12h1v1h-1zM15 12h1v1h-1zM18 12h1v1h-1zM21 12h1v1h-1zM23 12h2v1h-2zM28 12h2v1h-2zM32 12h1v1h-1zM2 13h4v1h-4zM7 13h1v1h-1zM9 13h2v1h-2zM14 13h3v1h-3zM20 13h4v1h-4zM26 13h2v1h-2zM29 13h1v1h-1zM31 13h2v1h-2zM1 14h1v1h-1zM3 14h4v1h-4zM9 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM17 14h3v1h-3zM21 14h2v1h-2zM25 14h2v1h-2zM29 14h1v1h-1zM31 14h1v1h-1zM0 15h1v1h-1zM2 15h1v1h-1zM4 15h2v1h-2zM7 15h1v1h-1zM9 15h6v1h-6zM16 15h1v1h-1zM18 15h5v1h-5zM25 15h4v1h-4zM30 15h1v1h-1zM0 16h3v1h-3zM5 16h8v1h-8zM16 16h4v1h-4zM22 16h4v1h-4zM27 16h2v1h-2zM32 16h1v1h-1zM2 17h3v1h-3zM10 17h4v1h-4zM16 17h2v1h-2zM19 17h2v1h-2zM23 17h1v1h-1zM26 17h2v1h-2zM29 17h2v1h-2zM32 17h1v1h-1zM4 18h4v1h-4zM9 18h1v1h-1zM12 18h1v1h-1zM15 18h3v1h-3zM22 18h1v1h-1zM24 18h5v1h-5zM30 18h2v1h-2zM0 19h1v1h-1zM3 19h1v1h-1zM7 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM17 19h3v1h-3zM26 19h5v1h-5zM32 19h1v1h-1zM0 20h1v1h-1zM4 20h3v1h-3zM8 20h1v1h-1zM10 20h4v1h-4zM16 20h1v1h-1zM20 20h3v1h-3zM24 20h2v1h-2zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h5v1h-5zM7 21h1v1h-1zM11 21h1v1h-1zM14 21h2v1h-2zM18 21h1v1h-1zM23 21h1v1h-1zM26 21h1v1h-1zM29 21h1v1h-1zM32 21h1v1h-1zM0 22h1v1h-1zM3 22h2v1h-2zM6 22h4v1h-4zM13 22h1v1h-1zM15 22h3v1h-3zM20 22h3v1h-3zM24 22h3v1h-3zM29 22h1v1h-1zM31 22h1v1h-1zM0 23h1v1h-1zM3 23h1v1h-1zM7 23h3v1h-3zM13 23h3v1h-3zM18 23h1v1h-1zM21 23h1v1h-1zM25 23h1v1h-1zM27 23h1v1h-1zM29 23h2v1h-2zM0 24h1v1h-1zM2 24h2v1h-2zM6 24h4v1h-4zM11 24h2v1h-2zM15 24h1v1h-1zM17 24h2v1h-2zM20 24h1v1h-1zM22 24h1v1h-1zM24 24h5v1h-5zM31 24h2v1h-2zM8 25h2v1h-2zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h5v1h-5zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM14 26h3v1h-3zM18 26h1v1h-1zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h6v1h-6zM16 27h1v1h-1zM20 27h5v1h-5zM28 27h3v1h-3zM32 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM15 28h1v1h-1zM18 28h1v1h-1zM21 28h1v1h-1zM24 28h6v1h-6zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM11 29h3v1h-3zM15 29h3v1h-3zM20 29h6v1h-6zM28 29h3v1h-3zM32 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h1v1h-1zM10 30h3v1h-3zM17 30h1v1h-1zM19 30h1v1h-1zM21 30h4v1h-4zM26 30h2v1h-2zM30 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h2v1h-2zM13 31h2v1h-2zM16 31h1v1h-1zM18 31h4v1h-4zM23 31h1v1h-1zM26 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM12 32h3v1h-3zM17 32h1v1h-1zM19 32h2v1h-2zM22 32h3v1h-3zM27 32h1v1h-1zM31 32h1v1h-1z"};
+  var ql = document.getElementById('qrLinks');
+  if (ql && !ql.querySelector('a[data-qr="day4"]')){
+    var a4 = document.createElement('a');
+    a4.href = '#'; a4.setAttribute('data-qr', 'day4'); a4.textContent = 'day4ページ';
+    ql.insertBefore(a4, ql.children[0]);
+  }
+
+  /* --- 採点パネル --- */
+  if (!document.getElementById('hackWrap')){
+    var css = document.createElement('style');
+    css.textContent =
+      '#hackWrap table{border-collapse:collapse;width:100%;font-size:13px;}' +
+      '#hackWrap th,#hackWrap td{border:1px solid var(--line);padding:6px 8px;text-align:center;}' +
+      '#hackWrap th{color:var(--sub);font-weight:normal;font-size:12px;letter-spacing:.06em;}' +
+      '#hackWrap input{width:100%;background:#1a1714;color:var(--ink);border:1px solid var(--line);' +
+      'border-radius:4px;padding:6px 4px;text-align:center;font-family:inherit;font-size:14px;}' +
+      '#hackWrap input.nm{text-align:left;}' +
+      '#hackWrap td.tot{color:var(--accent);font-size:17px;font-variant-numeric:tabular-nums;}' +
+      '#hackWrap td.pct,#hackWrap td.rk{font-variant-numeric:tabular-nums;}' +
+      '#hackWrap td.rk{font-size:17px;}';
+    document.head.appendChild(css);
+
+    var TEAMS = ['A','B','C','D'];
+    var hk = {};
+    try { hk = JSON.parse(localStorage.getItem('mc_hack') || '{}') || {}; } catch(e){ hk = {}; }
+
+    var h2 = document.createElement('h2');
+    h2.id = 'hackHead';
+    h2.textContent = 'ハッカソン採点(第1ラウンド58マス+ビット絵64マス=122)';
+    var wrap = document.createElement('div');
+    wrap.className = 'dash'; wrap.id = 'hackWrap';
+    wrap.innerHTML =
+      '<table><thead><tr>' +
+      '<th style="width:15%">チーム</th>' +
+      '<th>第1問<br>/17</th><th>第2問<br>/20</th><th>第3問<br>/21</th><th>ビット絵<br>/64</th>' +
+      '<th>合計<br>/122</th><th>一致率</th><th>R1所要<br>(分)</th><th>R2所要<br>(分)</th><th>順位</th>' +
+      '</tr></thead><tbody id="hackBody"></tbody></table>' +
+      '<div class="controls" style="margin:14px 0 0">' +
+      '<button id="hackCsv">採点をCSVで書き出す</button>' +
+      '<button id="hackClr">採点を消す</button>' +
+      '<span class="muted" id="hackStat"></span></div>';
+
+    var ttHead = null;
+    var hs = document.querySelectorAll('h2');
+    for (var i = 0; i < hs.length; i++){ if (hs[i].textContent.indexOf('タイムテーブル') === 0){ ttHead = hs[i]; break; } }
+    if (ttHead){ ttHead.parentNode.insertBefore(h2, ttHead); ttHead.parentNode.insertBefore(wrap, ttHead); }
+    else { document.querySelector('.wrap').appendChild(h2); document.querySelector('.wrap').appendChild(wrap); }
+
+    var get = function(t, k){ return (hk[t] && hk[t][k] != null) ? hk[t][k] : ''; };
+    var num = function(t, k){ var v = parseInt(get(t, k), 10); return isNaN(v) ? 0 : v; };
+    var total = function(t){ return num(t,'q1') + num(t,'q2') + num(t,'q3') + num(t,'bit'); };
+    var mins = function(t){ return num(t,'m1') + num(t,'m2'); };
+    var cell = function(t, k, max){
+      return '<td><input data-t="' + t + '" data-k="' + k + '" type="number" min="0"' +
+             (max ? ' max="' + max + '"' : '') + ' value="' + get(t, k) + '"></td>';
+    };
+
+    var draw = function(){
+      var order = TEAMS.slice().sort(function(a, b){
+        var dd = total(b) - total(a);
+        if (dd !== 0) return dd;
+        return (mins(a) || 99999) - (mins(b) || 99999);
+      });
+      var rank = {};
+      order.forEach(function(t, i){ rank[t] = i + 1; });
+
+      document.getElementById('hackBody').innerHTML = TEAMS.map(function(t){
+        var tot = total(t);
+        var any = ['q1','q2','q3','bit'].some(function(k){ return get(t, k) !== ''; });
+        return '<tr>' +
+          '<td><input class="nm" data-t="' + t + '" data-k="name" value="' +
+            (get(t, 'name') || ('チーム' + t)) + '"></td>' +
+          cell(t,'q1',17) + cell(t,'q2',20) + cell(t,'q3',21) + cell(t,'bit',64) +
+          '<td class="tot">' + (any ? tot : '—') + '</td>' +
+          '<td class="pct">' + (any ? Math.round(tot / 122 * 100) + '%' : '—') + '</td>' +
+          cell(t,'m1') + cell(t,'m2') +
+          '<td class="rk">' + (any ? rank[t] : '—') + '</td>' +
+          '</tr>';
+      }).join('');
+    };
+
+    wrap.addEventListener('input', function(ev){
+      var el = ev.target;
+      if (!el.dataset || !el.dataset.t) return;
+      var t = el.dataset.t, k = el.dataset.k;
+      if (!hk[t]) hk[t] = {};
+      hk[t][k] = el.value;
+      try { localStorage.setItem('mc_hack', JSON.stringify(hk)); } catch(e){}
+      document.getElementById('hackStat').textContent = '保存しました';
+      if (k !== 'name'){
+        var focused = document.activeElement;
+        var ft = focused && focused.dataset ? focused.dataset.t : null;
+        var fk = focused && focused.dataset ? focused.dataset.k : null;
+        draw();
+        if (ft){
+          var back = wrap.querySelector('input[data-t="' + ft + '"][data-k="' + fk + '"]');
+          if (back){ back.focus(); }
+        }
+      }
+    });
+
+    document.getElementById('hackCsv').addEventListener('click', function(){
+      var head = 'チーム,第1問(17),第2問(20),第3問(21),ビット絵(64),合計(122),一致率,R1所要(分),R2所要(分)\n';
+      var lines = TEAMS.map(function(t){
+        var tot = total(t);
+        return [get(t,'name') || ('チーム' + t), num(t,'q1'), num(t,'q2'), num(t,'q3'), num(t,'bit'),
+                tot, Math.round(tot / 122 * 100) + '%', num(t,'m1'), num(t,'m2')].join(',');
+      }).join('\n');
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['\uFEFF' + head + lines], {type:'text/csv'}));
+      a.download = 'ハッカソン採点_メディア文化ゼミナール.csv';
+      a.click();
+    });
+    document.getElementById('hackClr').addEventListener('click', function(){
+      if (!confirm('採点をすべて消します。よろしいですか。')) return;
+      hk = {};
+      try { localStorage.removeItem('mc_hack'); } catch(e){}
+      draw();
+      document.getElementById('hackStat').textContent = '消しました';
+    });
+
+    draw();
+  }
+
+  /* --- 出席表に「第4日提出」の列 --- */
+  var hr = document.querySelector('table.att thead tr');
+  if (hr && hr.children.length === 9){
+    var th = document.createElement('th'); th.textContent = '第4日提出'; hr.appendChild(th);
+  }
+
+  /* --- CSVを13列にする --- */
+  var oldBtn = document.getElementById('csvBtn');
+  if (oldBtn){
+    var nb = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(nb, oldBtn);
+    nb.addEventListener('click', function(){
+      if (!roster) return;
+      var head = '氏名,カナ,学年,学籍番号,第1日,第2日,第3日,第4日,提出①,提出②,第2日ミニッツ,第3日ミニッツ,第4日提出\n';
+      var lines = roster.map(function(s){
+        var a = att[key(s)] || {};
+        return [s.name, s.kana, s.grade, s.sid,
+          a.d1 ? '○' : '', a.d2 ? '○' : '', a.d3 ? '○' : '', a.d4 ? '○' : '',
+          subFor(subs.f1, s) ? '○' : '', subFor(subs.f2, s) ? '○' : '',
+          subFor(subs.f3, s) ? '○' : '', subFor(subs.f4, s) ? '○' : '',
+          subFor(subs.f5, s) ? '○' : ''].join(',');
+      }).join('\n');
+      var blob = new Blob(['\uFEFF' + head + lines], {type: 'text/csv'});
+      var a2 = document.createElement('a');
+      a2.href = URL.createObjectURL(blob);
+      a2.download = '出席簿_メディア文化ゼミナール.csv';
+      a2.click();
+    });
+  }
+
+  /* --- タイムテーブル行内のリンク --- */
+  var tt = document.getElementById('tt');
+  if (!tt) return;
+  function L(h, t){ return '<a href="' + h + '" target="_blank">' + t + '</a>'; }
+  var MAP4 = {
+    'ハッカソンの説明とルール': L('./day4.html', 'day4ページ'),
+    'チーム発表と役割': '<a href="#grpWrap">グループ分け</a>',
+    '帰還と記録': '<a href="#hackHead">採点パネル</a>',
+    '採点と現物の回収': '<a href="#hackHead">採点パネル</a>',
+    '4日間の振り返りとミニッツ': L('FORM4_URL', 'フォーム') + L('FORM4_EDIT', '回答を見る')
+  };
+  function deco4(){
+    var trs = tt.querySelectorAll('tr');
+    for (var i = 0; i < trs.length; i++){
+      var tds = trs[i].children;
+      if (tds.length < 3) continue;
+      var lab = tds[1].textContent;
+      if (MAP4[lab] && !tds[2].querySelector('.seg-links')){
+        var div = document.createElement('div');
+        div.className = 'seg-links';
+        div.innerHTML = MAP4[lab];
+        tds[2].appendChild(div);
+      }
+    }
+  }
+  new MutationObserver(deco4).observe(tt, {childList:true, subtree:true});
+  deco4();
+})();
+
+/* 出席・提出の表。第4日提出(f5)まで出す */
+function renderDash(){
+  var has = roster && roster.length;
+  document.getElementById('rosterSetup').style.display = has ? 'none' : 'block';
+  document.getElementById('attWrap').style.display = has ? 'block' : 'none';
+  if (!has){ document.getElementById('groupsView').innerHTML = ''; return; }
+
+  var FORMS = ['f1', 'f2', 'f3', 'f4', 'f5'];
+
+  document.getElementById('attBody').innerHTML = roster.map(function(s){
+    var a = att[key(s)] || {};
+    var days = ['d1','d2','d3','d4'].map(function(d){
+      return '<td class="cell ' + (a[d] ? 'onn' : 'off') + '" data-k="' + key(s) + '" data-d="' + d + '">' + (a[d] ? '✅' : '・') + '</td>';
+    }).join('');
+    var cells = FORMS.map(function(f){
+      var x = subFor(subs[f], s);
+      return '<td class="sub ' + (x ? 'yes' : 'no') + '">' + (x ? '✓ ' + x.t : '—') + '</td>';
+    }).join('');
+    return '<tr><td class="nm">' + s.name + '<span class="gr g' + s.grade + '">' + s.grade + '年</span>' +
+      (s.kana ? '<span class="kn">' + s.kana + '</span>' : '') + '</td>' + days + cells + '</tr>';
+  }).join('');
+
+  var totals = ['d1','d2','d3','d4'].map(function(d){
+    return roster.filter(function(s){ return (att[key(s)] || {})[d]; }).length;
+  });
+  var counts = FORMS.map(function(f){
+    return roster.filter(function(s){ return subFor(subs[f], s); }).length;
+  });
+  document.getElementById('attFoot').innerHTML =
+    '<td class="muted">計 ' + roster.length + '名</td>' +
+    totals.concat(counts).map(function(t){
+      return '<td class="muted" style="text-align:center">' + t + '</td>';
+    }).join('');
+
+  var LABEL = {f1:'提出①', f2:'提出②', f3:'第2日ミニッツ', f4:'第3日ミニッツ', f5:'第4日提出'};
+  var un = [];
+  FORMS.forEach(function(f){
+    (subs[f] || []).forEach(function(x){
+      if (!roster.some(function(s){ return norm(s.name) === norm(x.n); })){
+        un.push(LABEL[f] + ':「' + x.n + '」');
+      }
+    });
+  });
+  document.getElementById('unmatched').textContent = un.length
+    ? '名簿と一致しない提出: ' + un.join(' / ') + '(表記ゆれの可能性)' : '';
+
+  renderGroups();
+}
 </script>
 
 </div>
