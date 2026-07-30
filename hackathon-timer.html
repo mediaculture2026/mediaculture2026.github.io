@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メディアハッカソン タイムテーブル|メディア文化ゼミナール 2026</title>
+<style>
+  :root{
+    --ink:#22201d;
+    --paper:#faf8f4;
+    --accent:#b8431a;
+    --line:#d9d2c7;
+    --sub:#6f6a62;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.8;
+    font-size:16px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 70px;}
+  header{
+    display:flex;justify-content:space-between;align-items:baseline;
+    border-bottom:1px solid var(--line);
+    padding:22px 0 12px;
+  }
+  .site{font-size:12px;letter-spacing:.12em;color:var(--sub);}
+  .site a{color:var(--sub);text-decoration:none;}
+  #clock{font-size:19px;font-variant-numeric:tabular-nums;letter-spacing:.04em;}
+
+  .daylabel{margin:24px 0 4px;font-size:12px;letter-spacing:.2em;color:var(--accent);}
+  h1{margin:0 0 20px;font-size:26px;letter-spacing:.04em;line-height:1.4;}
+
+  .now{
+    background:#fff;
+    border:1px solid var(--line);
+    border-left:6px solid var(--accent);
+    padding:20px 22px 18px;
+    margin:0 0 8px;
+  }
+  .now .seg{font-size:23px;font-weight:bold;letter-spacing:.03em;line-height:1.4;}
+  .now .range{color:var(--sub);font-size:13px;margin-top:2px;}
+  #countdown{
+    font-size:62px;font-weight:bold;font-variant-numeric:tabular-nums;
+    letter-spacing:.03em;line-height:1.2;margin:10px 0 0;
+  }
+  #countdown.warn{color:var(--accent);}
+  .cdlabel{color:var(--sub);font-size:12px;letter-spacing:.08em;}
+  .segnote{
+    margin-top:12px;padding-top:12px;
+    border-top:1px dashed var(--line);
+    font-size:15px;min-height:1.6em;
+  }
+  .next{color:var(--sub);font-size:13px;margin:8px 2px 28px;}
+
+  table{border-collapse:collapse;width:100%;font-size:15px;}
+  td{border-bottom:1px solid var(--line);padding:11px 10px;vertical-align:top;background:#fff;}
+  td.t{
+    white-space:nowrap;color:var(--sub);font-size:13px;
+    font-variant-numeric:tabular-nums;width:8.5em;
+  }
+  td.l{font-weight:600;width:12em;}
+  td.n{color:var(--sub);font-size:13px;}
+  tr.past td{background:transparent;color:#b6afa4;}
+  tr.past td.t,tr.past td.n{color:#c2bcb2;}
+  tr.cur td{background:#fff4ec;}
+  tr.cur td.l{color:var(--accent);}
+
+  .foot{font-size:12px;color:var(--sub);margin-top:26px;line-height:1.7;}
+  .back{font-size:14px;margin-top:30px;}
+  a{color:var(--accent);}
+  @media (max-width:560px){
+    #countdown{font-size:48px;}
+    td.l{width:auto;}
+    td.t{width:6.5em;font-size:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="site"><a href="./index.html">メディア文化ゼミナール 2026</a></div>
+  <div id="clock">--:--:--</div>
+</header>
+
+<div class="daylabel">DAY 4</div>
+<h1>メディアハッカソン タイムテーブル</h1>
+
+<div class="now">
+  <div class="seg" id="segLabel">—</div>
+  <div class="range" id="segRange"></div>
+  <div id="countdown">--:--</div>
+  <div class="cdlabel" id="cdLabel"></div>
+  <div class="segnote" id="segNote"></div>
+</div>
+<div class="next" id="nextLabel"></div>
+
+<table id="tt"></table>
+
+<p class="foot">
+  時刻は目安です。進行にあわせて教員が調整します。<br>
+  このページは1秒ごとに自動で更新されます。開いたままにしておいてください。
+</p>
+
+<p class="back"><a href="./day4.html">← 第4日 電気を使わずに伝える</a></p>
+
+</div>
+
+<script>
+(function(){
+  var SCHEDULE = [
+    {n:'1',  s:'09:00', e:'09:10', label:'オリエンテーション',
+     note:'メディアハッカソンの説明とルール。チームは前日と同じ'},
+    {n:'2',  s:'09:10', e:'09:35', label:'レーン検討',
+     note:'キャンパスマップを見て、送信地点と受信地点を決める。下見は開発の時間のうちに各チームで'},
+    {n:'3',  s:'09:35', e:'11:30', label:'開発',
+     note:'符号の設計、スタディ、シミュレーション、練習。このうち好きなタイミングで休憩を10分とる'},
+    {n:'4',  s:'11:30', e:'12:40', label:'第一ラウンド',
+     note:'移動と配置のあと送信開始。3問すべてを30分以内に送る。課題は送信係に3問まとめて渡す'},
+    {n:'5',  s:'12:40', e:'13:25', label:'第一ラウンド終了・昼休み',
+     note:''},
+    {n:'6',  s:'13:25', e:'14:10', label:'作戦会議',
+     note:'第一ラウンドを踏まえて、符号と手順を組み直す。役を交代する'},
+    {n:'7',  s:'14:10', e:'15:30', label:'第二ラウンド',
+     note:'問題配布のあと送信開始。ビット絵 8×8'},
+    {n:'8',  s:'15:30', e:'15:45', label:'第二ラウンド終了・休憩',
+     note:'この時間で採点します'},
+    {n:'9',  s:'15:45', e:'15:55', label:'順位発表',
+     note:''},
+    {n:'10', s:'15:55', e:'16:40', label:'グループ発表',
+     note:'1チーム10分。符号の仕組み、どこで誤ったか、どこで時間がかかったか'},
+    {n:'11', s:'16:40', e:'17:05', label:'講評',
+     note:'ここでハッカソン終わり'}
+  ];
+
+  function toDate(hm){
+    var p = hm.split(':');
+    var d = new Date();
+    d.setHours(+p[0], +p[1], 0, 0);
+    return d;
+  }
+  function two(x){ return (x < 10 ? '0' : '') + x; }
+  function fmtDur(ms){
+    if (ms < 0) ms = 0;
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60);
+    return two(m) + ':' + two(s % 60);
+  }
+  function el(id){ return document.getElementById(id); }
+  function name(g){ return g.n + '. ' + g.label; }
+
+  function render(){
+    var now = new Date();
+    el('clock').textContent = two(now.getHours()) + ':' + two(now.getMinutes()) + ':' + two(now.getSeconds());
+
+    var cur = -1;
+    for (var i = 0; i < SCHEDULE.length; i++){
+      if (now >= toDate(SCHEDULE[i].s) && now < toDate(SCHEDULE[i].e)){ cur = i; break; }
+    }
+
+    var cd = el('countdown');
+    if (now < toDate(SCHEDULE[0].s)){
+      el('segLabel').textContent = '開始前';
+      el('segRange').textContent = '開始 ' + SCHEDULE[0].s;
+      cd.textContent = fmtDur(toDate(SCHEDULE[0].s) - now);
+      cd.classList.remove('warn');
+      el('cdLabel').textContent = '開始まで';
+      el('segNote').textContent = '';
+      el('nextLabel').textContent = '';
+    } else if (cur === -1){
+      el('segLabel').textContent = '終了';
+      el('segRange').textContent = '';
+      cd.textContent = '--:--';
+      cd.classList.remove('warn');
+      el('cdLabel').textContent = '';
+      el('segNote').textContent = 'おつかれさまでした。';
+      el('nextLabel').textContent = '';
+    } else {
+      var seg = SCHEDULE[cur];
+      var remain = toDate(seg.e) - now;
+      el('segLabel').textContent = name(seg);
+      el('segRange').textContent = seg.s + '〜' + seg.e;
+      cd.textContent = fmtDur(remain);
+      cd.classList.toggle('warn', remain < 5 * 60 * 1000);
+      el('cdLabel').textContent = '残り時間';
+      el('segNote').textContent = seg.note;
+      var nxt = SCHEDULE[cur + 1];
+      el('nextLabel').textContent = nxt ? ('次: ' + nxt.s + '〜 ' + name(nxt)) : '次: 終了';
+    }
+
+    el('tt').innerHTML = SCHEDULE.map(function(g, i){
+      var cls = '';
+      if (now >= toDate(g.e)) cls = 'past';
+      if (i === cur) cls = 'cur';
+      return '<tr class="' + cls + '">' +
+        '<td class="t">' + g.s + '〜' + g.e + '</td>' +
+        '<td class="l">' + name(g) + '</td>' +
+        '<td class="n">' + g.note + '</td></tr>';
+    }).join('');
+  }
+
+  setInterval(render, 1000);
+  render();
+})();
+</script>
+</body>
+</html>
