@@ -1319,8 +1319,8 @@ function renderDash(){
   if (links && !links.querySelector('a[data-d4]')){
     [
       ['./day4.html', 'day4ページ'],
-      ['FORM4_URL', '第4日フォーム'],
-      ['FORM4_EDIT', '第4日 回答を見る']
+      ['https://forms.gle/tAn9ZGFpks523DFf7', '第4日フォーム'],
+      ['https://docs.google.com/forms/d/1vXHSBf_XOU9ofo5mVDWiqz_8b6-moPVfCAZ3LOcdSMg/edit', '第4日 回答を見る']
     ].forEach(function(x){
       var a = document.createElement('a');
       a.href = x[0]; a.target = '_blank'; a.textContent = x[1];
@@ -1495,7 +1495,7 @@ function renderDash(){
     'チーム発表と役割': '<a href="#grpWrap">グループ分け</a>',
     '帰還と記録': '<a href="#hackHead">採点パネル</a>',
     '採点と現物の回収': '<a href="#hackHead">採点パネル</a>',
-    '4日間の振り返りとミニッツ': L('FORM4_URL', 'フォーム') + L('FORM4_EDIT', '回答を見る')
+    '4日間の振り返りとミニッツ': L('https://forms.gle/tAn9ZGFpks523DFf7', 'フォーム') + L('https://docs.google.com/forms/d/1vXHSBf_XOU9ofo5mVDWiqz_8b6-moPVfCAZ3LOcdSMg/edit', '回答を見る')
   };
   function deco4(){
     var trs = tt.querySelectorAll('tr');
