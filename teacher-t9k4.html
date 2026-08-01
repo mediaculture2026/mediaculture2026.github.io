@@ -1587,7 +1587,6 @@ function renderDash(){
   var h2 = document.createElement('h2');
   h2.id = 'subsHead';
   h2.textContent = '提出物(回答はここから)';
-  h2.style.marginTop = '18px';
 
   var wrap = document.createElement('div');
   wrap.className = 'dash';
@@ -1600,10 +1599,12 @@ function renderDash(){
     '<button id="subsRefresh2">提出件数を更新</button>' +
     '<span class="muted" id="subsStat2"></span></div>';
 
-  var head = document.querySelector('.head');
-  if (head && head.parentNode){
-    head.parentNode.insertBefore(h2, head.nextSibling);
-    h2.parentNode.insertBefore(wrap, h2.nextSibling);
+  var anchor = null;
+  var hh = document.querySelectorAll('.wrap > h2');
+  for (var i = 0; i < hh.length; i++){ if (hh[i].textContent.indexOf('リンク') === 0){ anchor = hh[i]; break; } }
+  if (anchor && anchor.parentNode){
+    anchor.parentNode.insertBefore(h2, anchor);
+    anchor.parentNode.insertBefore(wrap, anchor);
   } else {
     document.querySelector('.wrap').appendChild(h2);
     document.querySelector('.wrap').appendChild(wrap);
