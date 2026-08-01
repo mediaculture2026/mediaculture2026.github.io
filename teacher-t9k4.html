@@ -1550,6 +1550,94 @@ function renderDash(){
 
   renderGroups();
 }
+
+/* 2026-07-31 追記2 提出物リンクを1か所にまとめる ---------------- */
+(function(){
+  if (document.getElementById('subsPanel')) return;
+
+  var css = document.createElement('style');
+  css.textContent =
+    '#subsPanel table{border-collapse:collapse;width:100%;font-size:13px;}' +
+    '#subsPanel th,#subsPanel td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:middle;}' +
+    '#subsPanel th{color:var(--sub);font-weight:normal;font-size:12px;letter-spacing:.06em;}' +
+    '#subsPanel td.n{text-align:center;font-variant-numeric:tabular-nums;width:5.5em;color:var(--accent);}' +
+    '#subsPanel td.n.zero{color:var(--sub);}' +
+    '#subsPanel td.lk a{margin-right:14px;white-space:nowrap;}' +
+    '#subsPanel td.day{color:var(--sub);width:5em;font-size:12px;}';
+  document.head.appendChild(css);
+
+  var FORMS = [
+    {k:'f1', day:'第1日', label:'提出① 自己紹介・第一回',
+     res:'https://docs.google.com/spreadsheets/d/145vxIZmye7B5ejB_ZM36qcubg6JSZ-nK9-6Xlr_Npvs/edit',
+     resLabel:'回答シート', pub:''},
+    {k:'f2', day:'第1日', label:'提出② 自己紹介・第二回',
+     res:'https://docs.google.com/spreadsheets/d/1e5V3MDdYaDvW88DUsjqtxKtNWBpNDKjnRm-4RndoZ7c/edit',
+     resLabel:'回答シート', pub:''},
+    {k:'f3', day:'第2日', label:'ミニッツペーパー',
+     res:'https://docs.google.com/spreadsheets/d/1RNTrF0JeUhBdA1LQsdD5EP13FnhrYAQsUE-kDb8Gcrs/edit',
+     resLabel:'回答シート', pub:''},
+    {k:'f4', day:'第3日', label:'ミニッツペーパー(今日の感想)',
+     res:'https://docs.google.com/forms/d/1zmcWX4DK1aMzsB-rfoAEdMq6AFlHch191Hgtny4SXKo/edit#responses',
+     resLabel:'回答を見る', pub:'https://forms.gle/bB9JC4m4wx5MsuNh9'},
+    {k:'f5', day:'第4日', label:'提出(ハッカソンと4日間の振り返り)',
+     res:'https://docs.google.com/forms/d/1vXHSBf_XOU9ofo5mVDWiqz_8b6-moPVfCAZ3LOcdSMg/edit#responses',
+     resLabel:'回答を見る', pub:'https://forms.gle/tAn9ZGFpks523DFf7'}
+  ];
+
+  var h2 = document.createElement('h2');
+  h2.id = 'subsHead';
+  h2.textContent = '提出物(回答はここから)';
+  h2.style.marginTop = '18px';
+
+  var wrap = document.createElement('div');
+  wrap.className = 'dash';
+  wrap.id = 'subsPanel';
+  wrap.innerHTML =
+    '<table><thead><tr>' +
+    '<th></th><th>提出物</th><th>提出</th><th>リンク</th>' +
+    '</tr></thead><tbody id="subsBody"></tbody></table>' +
+    '<div class="controls" style="margin:12px 0 0">' +
+    '<button id="subsRefresh2">提出件数を更新</button>' +
+    '<span class="muted" id="subsStat2"></span></div>';
+
+  var head = document.querySelector('.head');
+  if (head && head.parentNode){
+    head.parentNode.insertBefore(h2, head.nextSibling);
+    h2.parentNode.insertBefore(wrap, h2.nextSibling);
+  } else {
+    document.querySelector('.wrap').appendChild(h2);
+    document.querySelector('.wrap').appendChild(wrap);
+  }
+
+  function draw(){
+    var body = document.getElementById('subsBody');
+    if (!body) return;
+    body.innerHTML = FORMS.map(function(f){
+      var n = ((typeof subs !== 'undefined' && subs[f.k]) || []).length;
+      var links = '<a href="' + f.res + '" target="_blank">' + f.resLabel + '</a>';
+      if (f.pub) links += '<a href="' + f.pub + '" target="_blank">学生用フォーム</a>';
+      return '<tr>' +
+        '<td class="day">' + f.day + '</td>' +
+        '<td>' + f.label + '</td>' +
+        '<td class="n' + (n ? '' : ' zero') + '">' + (n ? n + '件' : '—') + '</td>' +
+        '<td class="lk">' + links + '</td>' +
+        '</tr>';
+    }).join('');
+    var at = (typeof subs !== 'undefined' && subs.at) ? subs.at : '';
+    document.getElementById('subsStat2').textContent =
+      at ? ('最終取得 ' + at) : '「提出件数を更新」を押すと件数が入ります';
+  }
+
+  document.getElementById('subsRefresh2').addEventListener('click', function(){
+    var b = document.getElementById('subRefresh');
+    if (b) b.click();
+    document.getElementById('subsStat2').textContent = '取得中…';
+  });
+
+  setInterval(draw, 2000);
+  draw();
+})();
+
 </script>
 
 </div>
